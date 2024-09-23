@@ -201,14 +201,14 @@ const MarkdownEditor: React.FC<{
     <div id="whole" className="w-full h-screen flex ">
       <div
         id="half1"
-        className="w-9/12 border-r h-full pr-3 border-stone-200 dark:border-stone-700">
+        className="w-9/12 border-r h-full mb-10 pb-20 pr-3 border-stone-200 dark:border-stone-700">
         <input
           onChange={e => setTitle(e.target.value)}
           value={title}
-          className="py-2 px-3 mr-2 mt-1 mb-4
+          className="py-2 px-3 mr-2 mt-1 mb-4 w-full
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
-            bg-transparent 
+            bg-transparent
             outline-none rounded-sm"
           placeholder="Draft title..."
           type="text"
@@ -217,6 +217,7 @@ const MarkdownEditor: React.FC<{
         <MDXEditor
           contentEditableClassName="prose-sm prose dark:prose-invert max-w-none"
           markdown="Hello world"
+          className="h-full overflow-y-auto "
           plugins={[
             imagePlugin({
               imageUploadHandler: () => {
