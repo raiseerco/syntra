@@ -1,20 +1,31 @@
-import '../../../src/app/editorStyles.css';
+'use client';
 
-import { EditorState, Transaction } from 'prosemirror-state';
+import '../../../src/app/EditorStyle.css';
+import {
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
+  ChangeCodeMirrorLanguage,
+  CodeToggle,
+  CreateLink,
+  InsertCodeBlock,
+  InsertImage,
+  InsertTable,
+  InsertThematicBreak,
+  ListsToggle,
+  UndoRedo,
+  markdownShortcutPlugin,
+  type MDXEditorProps,
+  headingsPlugin,
+  imagePlugin,
+  linkDialogPlugin,
+  listsPlugin,
+  quotePlugin,
+  tablePlugin,
+  thematicBreakPlugin,
+  toolbarPlugin,
+} from '@mdxeditor/editor';
+import { MDXEditor, MDXEditorMethods } from '@mdxeditor/editor';
 import React, { useEffect, useRef, useState } from 'react';
-import { buildMenuItems, exampleSetup } from 'prosemirror-example-setup';
-import {
-  chainCommands,
-  createParagraphNear,
-  liftEmptyBlock,
-  newlineInCode,
-  splitBlock,
-} from 'prosemirror-commands';
-import {
-  defaultMarkdownParser,
-  defaultMarkdownSerializer,
-  schema,
-} from 'prosemirror-markdown';
 import {
   preprocessMarkdown,
   readDocument,
@@ -23,30 +34,16 @@ import {
 } from '../../lib/utils';
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
-import { EditorView } from 'prosemirror-view';
 import Loader from './ui/Loader';
-import { MenuItem } from 'prosemirror-menu';
-import ReactMarkdown from 'react-markdown';
-import { Schema } from 'prosemirror-model';
-import { addListNodes } from 'prosemirror-schema-list';
-
-const shiftEnterCommand = chainCommands(
-  newlineInCode,
-  createParagraphNear,
-  liftEmptyBlock,
-  splitBlock,
-);
-
-const oldUpdateState = EditorView.prototype.updateState;
-
-EditorView.prototype.updateState = function (state) {
-  // @ts-ignore
-  if (!this.docView) {
-    return;
-  }
-
-  oldUpdateState.call(this, state);
-};
+import { linkPlugin } from '@mdxeditor/editor';
+import {
+  BackpackIcon,
+  ExclamationTriangleIcon,
+  IdCardIcon,
+  Link1Icon,
+  Link2Icon,
+  PersonIcon,
+} from '@radix-ui/react-icons';
 
 const MarkdownEditor: React.FC<{
   daoTemplate: any;
@@ -55,6 +52,7 @@ const MarkdownEditor: React.FC<{
   afterSave: () => void;
   projectName: string;
   projects: any[];
+  editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
 }> = ({
   daoTemplate,
   folder,
@@ -62,7 +60,8 @@ const MarkdownEditor: React.FC<{
   afterSave,
   projectName,
   projects,
-}) => {
+  editorRef,
+}: any) => {
   const [cont, setCont] = useState('');
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
@@ -72,61 +71,6 @@ const MarkdownEditor: React.FC<{
   const [collabs, setCollabs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  const editorRef = useRef<HTMLDivElement>(null);
-  const viewRef = useRef<EditorView | null>(null);
-  const mySchema = new Schema({
-    nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-    marks: schema.spec.marks,
-  });
-
-  const createEditorState = (content: string = '') => {
-    const doc = defaultMarkdownParser.parse(content.trim());
-    const menuItems = buildMenuItems(mySchema);
-    const filteredMenu = menuItems.fullMenu
-      .map(group =>
-        // @ts-ignore
-        group.filter((item: MenuItem) =>
-          // @ts-ignore
-
-          ['strong', 'em', 'code'].includes(item.spec?.markType?.name || ''),
-        ),
-      )
-      .filter(group => group.length > 0);
-
-    return EditorState.create({
-      doc,
-      schema: mySchema,
-      plugins: exampleSetup({
-        schema: mySchema,
-        menuContent: filteredMenu,
-      }),
-    });
-  };
-
-  const initializeEditor = (content: string = '') => {
-    if (!editorRef.current) return;
-
-    const state = createEditorState(content);
-
-    if (viewRef.current) {
-      viewRef.current.updateState(state);
-    } else {
-      viewRef.current = new EditorView(editorRef.current, {
-        state,
-        dispatchTransaction: (transaction: Transaction) => {
-          if (viewRef.current) {
-            const newState = viewRef.current.state.apply(transaction);
-            viewRef.current.updateState(newState);
-            if (transaction.docChanged) {
-              const content = defaultMarkdownSerializer.serialize(newState.doc);
-              setCont(content);
-            }
-          }
-        },
-      });
-    }
-  };
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -142,7 +86,7 @@ const MarkdownEditor: React.FC<{
           setTags(data.tags || []);
           setCollabs(data.collabs || []);
           setCont(data.content);
-          initializeEditor(data.content);
+          // initializeEditor(data.content);
         }
 
         if (documentId === '0' && typeof daoTemplate?.id === 'undefined') {
@@ -155,7 +99,7 @@ const MarkdownEditor: React.FC<{
 
           setTags([]);
           setCollabs([]);
-          initializeEditor();
+          // initializeEditor();
           return;
         }
 
@@ -173,7 +117,7 @@ const MarkdownEditor: React.FC<{
 
           const content = preprocessMarkdown(contentPre);
           setCont(content);
-          initializeEditor(content);
+          // initializeEditor(content);
         }
 
         return;
@@ -187,7 +131,7 @@ const MarkdownEditor: React.FC<{
     fetchDocument();
 
     return () => {
-      if (viewRef.current) viewRef.current.destroy();
+      // if (viewRef.current) viewRef.current.destroy();
     };
   }, [documentId, folder]);
 
@@ -254,127 +198,176 @@ const MarkdownEditor: React.FC<{
   };
 
   return (
-    <div className="w-full">
-      <div className="text-xs gap-y-2 flex flex-col ">
-        <div className="flex py-2 items-center justify-between">
-          <span className="text-base  ">New draft</span>
-          {isSaving ? (
-            <Loader />
-          ) : (
-            <div className="flex gap-2">
-              {/* <Button variant="ghost" size={'sm'} onClick={handleSave}>
-                Save
-              </Button>
+    <div id="whole" className="w-full h-screen flex ">
+      <div
+        id="half1"
+        className="w-9/12 border-r h-full pr-3 border-stone-200 dark:border-stone-700">
+        <input
+          onChange={e => setTitle(e.target.value)}
+          value={title}
+          className="py-2 px-3 mr-2 mt-1 mb-4
+            placeholder:dark:text-stone-600 
+            placeholder:text-stone-300
+            bg-transparent 
+            outline-none rounded-sm"
+          placeholder="Draft title..."
+          type="text"
+        />
 
-              <Button variant="ghost" size={'sm'} onClick={handleClose}>
-                Close
-              </Button> */}
+        <MDXEditor
+          contentEditableClassName="prose-sm prose dark:prose-invert max-w-none"
+          markdown="Hello world"
+          plugins={[
+            imagePlugin({
+              imageUploadHandler: () => {
+                return Promise.resolve('https://picsum.photos/200/300');
+              },
+              imageAutocompleteSuggestions: [
+                'https://picsum.photos/200/300',
+                'https://picsum.photos/200',
+              ],
+            }),
 
-              <button
-                onClick={handleSave}
-                className="text-xs rounded-md px-3 py-2
+            // headingsPlugin(),
+            listsPlugin(),
+            quotePlugin(),
+            thematicBreakPlugin(),
+            linkDialogPlugin(),
+            linkPlugin(),
+            headingsPlugin({ allowedHeadingLevels: [1, 2, 3] }),
+            tablePlugin(),
+            listsPlugin(),
+            toolbarPlugin({
+              toolbarContents: () => (
+                <>
+                  <UndoRedo />
+                  <BoldItalicUnderlineToggles />
+                  <CodeToggle />
+                  <BlockTypeSelect />
+                  <InsertTable />
+                  <CreateLink />
+                  <ListsToggle />
+                  <InsertImage />
+                  <InsertThematicBreak />
+                </>
+              ),
+            }),
+          ]}
+        />
+      </div>
+      {/* metadata  */}
+      <div id="half2" className="w-3/12 h-full pl-4 text-sm flex flex-col">
+        {isSaving ? (
+          <Loader />
+        ) : (
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleSave}
+              className="text-xs rounded-md px-3 py-2 mt-2
                              dark:hover:bg-stone-700
                              hover:bg-stone-200
                              dark:text-stone-400 text-stone-900">
-                Save
-              </button>
+              Save
+            </button>
 
-              <button
-                onClick={handleClose}
-                className="text-xs rounded-md px-3 py-2
+            <button
+              onClick={handleClose}
+              className="text-xs rounded-md px-3 py-2 mt-2
                              dark:hover:bg-stone-700
                              hover:bg-stone-200
                              dark:text-stone-400 text-stone-900">
-                Close
-              </button>
+              Close
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 mb-1">
+            <div className="flex gap-2 items-center">
+              <Link2Icon /> Related Discussion Link
             </div>
-          )}
-        </div>
-        <div className="flex items-baseline">
-          <div className="w-1/12">Title</div>
-          <input
-            onChange={e => setTitle(e.target.value)}
-            value={title}
-            className="w-8/12 py-2 px-3 mr-2 
+            <input
+              onChange={e => setLink(e.target.value)}
+              value={link}
+              className="py-2 px-3 w-full
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
             bg-white dark:bg-stone-700
             outline-none rounded-sm"
-            placeholder="Enter a name..."
-            type="text"
-          />
-          <div className="w-1/12">Priority</div>
-          <select
-            disabled
-            className="w-2/12 py-2 px-3 mr-2 
-            placeholder:dark:text-stone-600 
+              placeholder="Enter an url..."
+              type="text"
+            />
+          </div>
+          <div className="flex flex-col gap-1 mb-1">
+            <div className="flex gap-2 items-center">
+              <BackpackIcon />
+              Project
+            </div>
+            <select
+              value={documentId === '0' ? projectName : project}
+              onChange={e => setProject(e.target.value)}
+              className="py-2 px-3 mr-2 w-full
+            placeholder:dark:text-stone-800 
+            placeholder:text-stone-300
+            bg-white dark:bg-stone-700
+            outline-none rounded-sm">
+              {projects.map((i: any, k: number) => (
+                <option key={k} value={i.project}>
+                  {i.project}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1 mb-1">
+            <div className="flex gap-2 items-center">
+              <IdCardIcon />
+              Label
+            </div>
+            <select
+              className="py-2 px-3 mr-2 
+            placeholder:dark:text-stone-800 
+            placeholder:text-stone-300  w-full
+            bg-white dark:bg-stone-700
+            outline-none opacity-50  rounded-sm"></select>
+          </div>
+
+          <div className="flex flex-col gap-1 mb-1">
+            <div className="flex gap-2 items-center">
+              <ExclamationTriangleIcon />
+              Priority
+            </div>
+            <select
+              disabled
+              className="py-2 px-3 mr-2 
+            placeholder:dark:text-stone-600  w-full
             placeholder:text-stone-300
             bg-white dark:bg-stone-700
             outline-none rounded-sm  opacity-50  ">
-            <option value={'medium'}></option>
-          </select>
-        </div>
-        <div className="flex items-baseline">
-          <div className="w-1/12">Link</div>
-          <input
-            onChange={e => setLink(e.target.value)}
-            value={link}
-            className="w-8/12 py-2 px-3 mr-2 
-            placeholder:dark:text-stone-600 
-            placeholder:text-stone-300
-            bg-white dark:bg-stone-700
-            outline-none rounded-sm"
-            placeholder="Enter an url..."
-            type="text"
-          />
-          <div className="w-1/12">Tags</div>
-          <select
-            className="w-2/12 py-2 px-3 mr-2 
-            placeholder:dark:text-stone-800 
-            placeholder:text-stone-300
-            bg-white dark:bg-stone-700
-            outline-none opacity-50  rounded-sm"></select>
-        </div>
-        <div className="flex items-baseline w-full">
-          <span className="w-1/12">Project</span>
-          <select
-            value={documentId === '0' ? projectName : project}
-            onChange={e => setProject(e.target.value)}
-            className="w-5/12 py-2 px-3 mr-2 
-            placeholder:dark:text-stone-800 
-            placeholder:text-stone-300
-            bg-white dark:bg-stone-700
-            outline-none rounded-sm">
-            {projects.map((i: any, k: number) => (
-              <option key={k} value={i.project}>
-                {i.project}
-              </option>
-            ))}
-          </select>
+              <option value={'medium'}></option>
+            </select>
+          </div>
 
-          <span
-            className="w-1/12 py-2 px-3 mr-2 text-right
-          ">
-            Collabs
-          </span>
-          <select
-            disabled
-            className="w-5/12 py-2 px-3 mr-2 
+          <div className="flex flex-col gap-1 mb-1">
+            <div className="flex gap-2 items-center">
+              <PersonIcon />
+              Collaborators
+            </div>
+            <select
+              disabled
+              className="py-2 px-3 mr-2 
             placeholder:dark:text-stone-800 
-            placeholder:text-stone-300
+            placeholder:text-stone-300  w-full
             bg-white dark:bg-stone-700
             outline-none rounded-sm">
-            <option value={'critical'}> </option>
-            <option value={'high'}> </option>
-            <option defaultValue={''} value={''}></option>
-            <option value={'low'}> </option>
-          </select>
+              <option value={'critical'}> </option>
+              <option value={'high'}> </option>
+              <option defaultValue={''} value={''}></option>
+              <option value={'low'}> </option>
+            </select>
+          </div>
         </div>
       </div>
-
-      <div className="flex mt-2 w-full justify-between"></div>
-
-      <div className="mt-3" ref={editorRef} />
     </div>
   );
 };

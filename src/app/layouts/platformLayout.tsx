@@ -110,7 +110,7 @@ export default function PlatformLayout({
 
             {/* sidebar */}
             <div
-              className="fixed left-0 h-full justify-between z-30 flex w-44 flex-col p-3"
+              className="fixed left-0 h-full justify-between flex w-44 flex-col p-3"
               style={{
                 backgroundColor:
                   typeof systemTheme === 'undefined'

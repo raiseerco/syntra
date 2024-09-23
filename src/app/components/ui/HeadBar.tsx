@@ -35,7 +35,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
 
   return (
     <header
-      className="w-[calc(100%-10rem)] ml-44 transition-colors mr-0 fixed shadow-sm top-0 right-00 z-30 flex h-12 items-center"
+      className="w-[calc(100%-10rem)] ml-44 transition-colors mr-0 fixed shadow-smx top-0 right-00 z-30 flex h-12 items-center"
       style={{
         backgroundColor:
           typeof systemTheme === 'undefined'

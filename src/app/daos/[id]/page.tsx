@@ -20,8 +20,7 @@ import { useEffect, useState } from 'react';
 import { ALL_DOCS_FOLDER } from '../../../lib/constants';
 import ActivityFeed from '../../components/ActivityFeed';
 import ArbitrumAnn from '../../components/ArbitrumAnn';
-import { Button } from '../../components/ui/Button';
-import CollaborativeEditor from '../../components/CollaborativeEditor';
+//  import CollaborativeEditor from '../../components/CollaborativeEditor';
 import DaoEvent from '../../components/DaoEvents';
 import { DaoLink } from '../../../types/DaoLink';
 import DaoLinks from '../../components/DaoLinks';
@@ -29,10 +28,16 @@ import { DraftList } from '../../components/DraftList';
 import Loader from '../../components/ui/Loader';
 import PlatformLayout from '../../layouts/platformLayout';
 import { ProjectList } from '../../components/ProjectList';
+import dynamic from 'next/dynamic';
 import { getCalendar } from '../../../lib/calendar';
 import { getDocument } from '../../../lib/firestore';
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useDAO } from '../../components/contexts/DAOContext';
+
+const CollaborativeEditor = dynamic(
+  () => import('../../components/CollaborativeEditor'),
+  { ssr: false },
+);
 
 // import { getLHUploads, getLHkey } from "../../../lib/storageLighthouse";
 
@@ -40,7 +45,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   const { id: idDao } = params;
   // const par = useParams();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isDraftsOpen, setIsDraftsOpen] = useState(true);
   const [daoTemplate, setDaoTemplate] = useState<any>();
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
@@ -163,7 +168,7 @@ _We have suggested applicants request 80% of the amount of impact they believe t
 
   const handleOpenDraft = (docId: string) => {
     setDocumentId(docId);
-    setIsOpen(!isOpen);
+    setIsEditorOpen(!isEditorOpen);
   };
 
   async function fetchDocuments() {
@@ -230,7 +235,7 @@ _We have suggested applicants request 80% of the amount of impact they believe t
       setProjects(nonZeroId);
 
       setSelectedProject(ALL_DOCS_FOLDER);
-      setIsOpen(false);
+      setIsEditorOpen(false);
     } catch (error) {
       console.error('Failed to get documents:', error);
     }
@@ -312,71 +317,74 @@ _We have suggested applicants request 80% of the amount of impact they believe t
 
   return (
     <PlatformLayout>
-      <div className="flex flex-row  w-full relative">
-        {/* dashboard  */}
-        <div className={`${isOpen && 'blur-lg '} flex flex-col w-full px-5`}>
-          {/* tab buttons */}
-          <div
-            id="divButtons"
-            className="flex mb-3 mt-6 flex-col sm:flex-row w-full gap-4 px-1 ">
-            {/* drafts  */}
-            <button
-              onClick={() => {
-                setIsDraftsOpen(true);
-                setIsResourcesOpen(false);
-                setIsCalendarOpen(false);
-                setIsActivityOpen(false);
-              }}
-              className={`  rounded-lg px-3 py-2  outline-none
+      <div className="flex relative z-0 w-full">
+        {
+          !isEditorOpen ? (
+            <div className="flex flex-col w-full px-5">
+              {' '}
+              {/* dashboard  */}
+              {/* tab buttons */}
+              <div
+                id="divButtons"
+                className="flex mb-3 mt-6 flex-col sm:flex-row w-full gap-4 px-1 ">
+                {/* drafts  */}
+                <button
+                  onClick={() => {
+                    setIsDraftsOpen(true);
+                    setIsResourcesOpen(false);
+                    setIsCalendarOpen(false);
+                    setIsActivityOpen(false);
+                  }}
+                  className={`  rounded-lg px-3 py-2  outline-none
                 ${isDraftsOpen && ' bg-stone-100 dark:bg-stone-700 '}
               text-stone-600 dark:text-stone-300 text-sm`}>
-              Drafts
-            </button>
+                  Drafts
+                </button>
 
-            {/* resources  */}
-            <button
-              onClick={() => {
-                setIsResourcesOpen(!isResourcesOpen);
-                setIsCalendarOpen(false);
-                setIsActivityOpen(false);
-                setIsDraftsOpen(false);
-              }}
-              className={`  rounded-lg px-3 py-2  outline-none
+                {/* resources  */}
+                <button
+                  onClick={() => {
+                    setIsResourcesOpen(!isResourcesOpen);
+                    setIsCalendarOpen(false);
+                    setIsActivityOpen(false);
+                    setIsDraftsOpen(false);
+                  }}
+                  className={`  rounded-lg px-3 py-2  outline-none
                 ${isResourcesOpen && ' bg-stone-100 dark:bg-stone-700 '}
               text-stone-600 dark:text-stone-300 text-sm`}>
-              DAO resources
-            </button>
+                  DAO resources
+                </button>
 
-            {/* calendar  */}
-            <button
-              onClick={() => {
-                setIsCalendarOpen(!isCalendarOpen);
-                setIsDraftsOpen(false);
-                setIsResourcesOpen(false);
-                setIsActivityOpen(false);
-              }}
-              className={`  rounded-lg px-3 py-2  outline-none
+                {/* calendar  */}
+                <button
+                  onClick={() => {
+                    setIsCalendarOpen(!isCalendarOpen);
+                    setIsDraftsOpen(false);
+                    setIsResourcesOpen(false);
+                    setIsActivityOpen(false);
+                  }}
+                  className={`  rounded-lg px-3 py-2  outline-none
                       ${isCalendarOpen && ' bg-stone-100 dark:bg-stone-700 '}
                     text-stone-600 dark:text-stone-300 text-sm`}>
-              Calendar
-            </button>
+                  Calendar
+                </button>
 
-            {/* activity feed  */}
-            <button
-              onClick={() => {
-                setIsActivityOpen(!isActivityOpen);
-                setIsCalendarOpen(false);
-                setIsResourcesOpen(false);
-                setIsDraftsOpen(false);
-              }}
-              className={`flex flex-col rounded-lg px-3 py-2  outline-none
+                {/* activity feed  */}
+                <button
+                  onClick={() => {
+                    setIsActivityOpen(!isActivityOpen);
+                    setIsCalendarOpen(false);
+                    setIsResourcesOpen(false);
+                    setIsDraftsOpen(false);
+                  }}
+                  className={`flex flex-col rounded-lg px-3 py-2  outline-none
                     ${isActivityOpen && ' bg-stone-100 dark:bg-stone-700 '}
                   text-stone-600 dark:text-stone-200 text-sm`}>
-              Activity feed
-            </button>
+                  Activity feed
+                </button>
 
-            {/* dao settings */}
-            {/* <button
+                {/* dao settings */}
+                {/* <button
               onClick={() => {
                 setIsActivityOpen(false);
                 setIsCalendarOpen(false);
@@ -389,311 +397,275 @@ _We have suggested applicants request 80% of the amount of impact they believe t
                   text-stone-600 dark:text-stone-200 text-sm`}>
               DAO Settings
             </button> */}
-          </div>
-
-          {/* tabs contents  */}
-          <div className=" ">
-            {/* pro-jects and drafts  */}
-            <div
-              className={` rounded-lg px-1
+              </div>
+              {/* tabs contents  */}
+              <div className=" ">
+                {/* projects and drafts  */}
+                <div
+                  className={` rounded-lg px-1
                     overflow-hidden transition-all duration-300 ease-in-out 
                     ${isDraftsOpen ? 'max-h-full' : 'max-h-0'}
                   `}>
-              <div className="flex flex-col sm:flex-row w-full gap-4 pb-2">
-                {/* project area */}
-                {isProjectsMinimized ? (
-                  <div className="sm:mt-[55px] w-9 relative sm:left-[-52px]     ">
-                    <button
-                      onClick={() => setIsProjectsMinimized(false)}
-                      className=" flex gap-x-4 items-center sm:transform
+                  <div className="flex flex-col sm:flex-row w-full gap-4 pb-2">
+                    {/* project area */}
+                    {isProjectsMinimized ? (
+                      <div className="sm:mt-[55px] w-9 relative sm:left-[-52px]     ">
+                        <button
+                          onClick={() => setIsProjectsMinimized(false)}
+                          className=" flex gap-x-4 items-center sm:transform
                        sm:-rotate-90 border dark:text-stone-300 dark:border-stone-700 px-4 py-2 rounded-lg">
-                      <div className=" whitespace-nowrap">
-                        Projects
-                        <span className="ml-4 font-bold text-xs">
-                          {projects.length - 1}
-                        </span>
+                          <div className=" whitespace-nowrap">
+                            Projects
+                            <span className="ml-4 font-bold text-xs">
+                              {projects.length - 1}
+                            </span>
+                          </div>
+                          <PinBottomIcon />
+                        </button>
                       </div>
-                      <PinBottomIcon />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    className={`'bg-transparent border p-4 rounded-xl  text-stone-600 dark:text-stone-300    border-stone-200 dark:border-stone-700 h-screen' ${
-                      isProjectsCollapsed ? 'w-1/4' : 'w-full'
-                    }`}>
-                    <div className="flex justify-between">
-                      <div className="text-lg font-semibold">Projects</div>
+                    ) : (
+                      <div
+                        className={`'bg-transparent border p-4 rounded-xl  text-stone-600 dark:text-stone-300
+                      border-stone-200 dark:border-stone-700 h-screen' ${
+                        isProjectsCollapsed ? 'w-1/4' : 'w-full'
+                      }`}>
+                        <div className="flex justify-between">
+                          <div className="text-lg font-semibold">Projects</div>
+                          <div className="relative">
+                            <div className="flex gap-4 items-center">
+                              <button
+                                onClick={handleNewProject}
+                                className="text-xs rounded-md px-3 py-2
+                             dark:hover:bg-stone-700
+                             hover:bg-stone-100
+                             dark:text-stone-400 text-stone-900">
+                                + New project
+                              </button>
 
-                      <div className="relative">
-                        <div className="flex gap-4 items-center">
-                          {/* <Button
-                            onClick={handleNewProject}
-                            className="rounded-md px-2  py-1 text-xs dark:hover:bg-rose-900 dark:text-stone-400 text-black"
-                            variant={'ghost'}
-                            size={'sm'}>
-                            + New project
-                          </Button> */}
+                              <button onClick={handleMinimizeProjects}>
+                                <PinLeftIcon />
+                              </button>
+                            </div>
+                            {showNew && (
+                              <div className="absolute w-48 -left-20 p-3 rounded-md bg-stone-100  shadow-md dark:shadow-stone-800 dark:bg-stone-500">
+                                <input
+                                  onChange={e => setNewProject(e.target.value)}
+                                  className="px-3 mr-2 py-2 w-full text-xs outline-none rounded-sm 
+                              placeholder:dark:text-stone-800 dark:bg-stone-600 bg-white
+                              "
+                                  placeholder="Enter a name..."
+                                  type="text"
+                                />
+                                <div className="flex pt-2 justify-between w-full gap-2">
+                                  <button
+                                    onClick={handleSaveProject}
+                                    className="text-xs w-20 rounded-md px-3 py-2
+                                dark:hover:bg-stone-700
+                                hover:bg-stone-200
+                                dark:text-stone-700 hover:dark:text-stone-400 text-stone-900">
+                                    Save
+                                  </button>
 
+                                  <button
+                                    onClick={() => setShowNew(false)}
+                                    className="text-xs  w-20 rounded-md px-3 py-2
+                                dark:hover:bg-stone-700
+                                hover:bg-stone-200
+                                dark:text-stone-700 hover:dark:text-stone-400 text-stone-900">
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {!isProjectsCollapsed ? (
+                          <div className="text-xs mb-4">
+                            View and manage all active projects.
+                          </div>
+                        ) : (
+                          <div className="py-4"> </div>
+                        )}
+
+                        <hr className="dark:border-stone-700" />
+                        {/* the project list  */}
+                        <div className="flex flex-col mt-4 gap-1">
+                          {projects && projects.length > 0 ? (
+                            <ProjectList
+                              handleSelect={e => handleSelectProject(e)}
+                              projects={projects}
+                            />
+                          ) : (
+                            <div className="flex gap-4 mt-4 flex-col items-center justify-center">
+                              <MoonIcon width={40} height={40} />
+                              No drafts to display
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* draft area  */}
+                    <div
+                      className="bg-transparent w-full border p-4 rounded-xl
+                  text-stone-600 dark:text-stone-300
+                  border-stone-200 dark:border-stone-700 h-auto">
+                      <div className="flex items-baseline justify-between">
+                        <div className="text-lg font-semibold">Drafts</div>
+                        <div className="flex gap-2">
                           <button
-                            onClick={handleNewProject}
+                            onClick={() => {
+                              setDocumentId('0');
+                              setDaoTemplate('');
+                              setIsEditorOpen(true);
+                            }}
                             className="text-xs rounded-md px-3 py-2
                              dark:hover:bg-stone-700
                              hover:bg-stone-100
                              dark:text-stone-400 text-stone-900">
-                            + New project
+                            + New draft
                           </button>
 
-                          <button onClick={handleMinimizeProjects}>
-                            <PinLeftIcon />
-                          </button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              className="outline-none"
+                              asChild>
+                              <button
+                                className="text-xs rounded-md px-3 py-2
+                             dark:hover:bg-stone-700
+                             hover:bg-stone-100
+                             dark:text-stone-400 text-stone-900">
+                                Use template
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              className="text-xs bg-stone-100 dark:bg-stone-700 p-3 outline-none shadow rounded-md"
+                              align="end">
+                              <DropdownMenuItem
+                                className="hover:bg-stone-200
+                               hover:dark:bg-stone-600 outline-none 
+                               cursor-pointer rounded-md px-3 py-2">
+                                Coming Soon™
+                              </DropdownMenuItem>
+
+                              {daoTemplates.map((i: any, k: number) => (
+                                <DropdownMenuItem
+                                  key={k}
+                                  onClick={() => {
+                                    setDocumentId('0');
+                                    setDaoTemplate(i);
+                                    setIsEditorOpen(true);
+                                  }}
+                                  className="hover:bg-stone-200 hover:dark:bg-stone-600 outline-none cursor-pointer rounded-md px-3 py-2">
+                                  {i.name}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
-                        {showNew && (
-                          <div className="absolute w-48 -left-20 p-3 rounded-md bg-stone-100  shadow-md dark:shadow-stone-800 dark:bg-stone-500">
-                            <input
-                              onChange={e => setNewProject(e.target.value)}
-                              className="px-3 mr-2 py-2 w-full text-xs outline-none rounded-sm 
-                              placeholder:dark:text-stone-800 dark:bg-stone-600 bg-white
-                              "
-                              placeholder="Enter a name..."
-                              type="text"
-                            />
-                            <div className="flex pt-2 justify-between w-full gap-2">
-                              <button
-                                onClick={handleSaveProject}
-                                className="text-xs w-20 rounded-md px-3 py-2
-                                dark:hover:bg-stone-700
-                                hover:bg-stone-200
-                                dark:text-stone-700 hover:dark:text-stone-400 text-stone-900">
-                                Save
-                              </button>
-
-                              <button
-                                onClick={() => setShowNew(false)}
-                                className="text-xs  w-20 rounded-md px-3 py-2
-                                dark:hover:bg-stone-700
-                                hover:bg-stone-200
-                                dark:text-stone-700 hover:dark:text-stone-400 text-stone-900">
-                                Cancel
-                              </button>
-                            </div>
+                      </div>
+                      <div className="text-xs mb-4">
+                        Access to your draft proposals.
+                      </div>
+                      <hr className="dark:border-stone-700" />
+                      {/* the draft list  */}
+                      <div className="flex  overflow-auto  flex-col mt-4 min-h-screen gap-1">
+                        {loading ? (
+                          <Loader />
+                        ) : documents && documents.length > 0 ? (
+                          <DraftList
+                            handleOpenDraft={(e: any) => handleOpenDraft(e)}
+                            documents={documents}
+                            afterOperation={fetchDocuments}
+                          />
+                        ) : (
+                          <div className="flex gap-4 mt-4 flex-col items-center justify-center">
+                            <MoonIcon width={40} height={40} />
+                            No drafts to display
                           </div>
                         )}
                       </div>
                     </div>
-
-                    {!isProjectsCollapsed ? (
-                      <div className="text-xs mb-4">
-                        View and manage all active projects.
-                      </div>
-                    ) : (
-                      <div className="py-4"> </div>
-                    )}
-
-                    <hr className="dark:border-stone-700" />
-                    {/* the project list  */}
-                    <div className="flex flex-col mt-4 gap-1">
-                      {projects && projects.length > 0 ? (
-                        <ProjectList
-                          handleSelect={e => handleSelectProject(e)}
-                          projects={projects}
-                        />
-                      ) : (
-                        <div className="flex gap-4 mt-4 flex-col items-center justify-center">
-                          <MoonIcon width={40} height={40} />
-                          No drafts to display
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {/* draft area  */}
-                <div
-                  className="bg-transparent w-full border p-4 rounded-xl
-                  text-stone-600 dark:text-stone-300
-                  border-stone-200 dark:border-stone-700 h-auto">
-                  <div className="flex items-baseline justify-between">
-                    <div className="text-lg font-semibold">Drafts</div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setDocumentId('0');
-                          setDaoTemplate('');
-                          setIsOpen(true);
-                        }}
-                        className="text-xs rounded-md px-3 py-2
-                             dark:hover:bg-stone-700
-                             hover:bg-stone-100
-                             dark:text-stone-400 text-stone-900">
-                        + New draft
-                      </button>
-
-                      {/* <select>
-                        {daoTemplates.map((i: any, k: number) => (
-                          <>
-                            <option key={k} value={i.id}>
-                              {i.name}
-                            </option>
-                          </>
-                        ))}
-                      </select>
-
-                      <select className="block w-full p-2.5 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        {daoTemplates.map((i: any, k: number) => (
-                          <option
-                            key={k}
-                            value={i.id}
-                            className="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600">
-                            {i.name}
-                          </option>
-                        ))}
-                      </select> */}
-
-                      {/* <Button
-                      className="rounded-md px-2 py-1 text-xs text-black"
-                      onClick={handleNewDraft}
-                      variant={"ghost"}
-                      size={"sm"}
-                    >
-                      + Use template
-                    </Button> */}
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="outline-none" asChild>
-                          <button
-                            className="text-xs rounded-md px-3 py-2
-                             dark:hover:bg-stone-700
-                             hover:bg-stone-100
-                             dark:text-stone-400 text-stone-900">
-                            Use template
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          className="text-xs bg-stone-100 dark:bg-stone-700 p-3 outline-none shadow rounded-md"
-                          align="end">
-                          <DropdownMenuItem
-                            className="hover:bg-stone-200
-                               hover:dark:bg-stone-600 outline-none 
-                               cursor-pointer rounded-md px-3 py-2">
-                            Coming Soon™
-                          </DropdownMenuItem>
-
-                          {/* {daoTemplates.map((i: any, k: number) => (
-                            <DropdownMenuItem
-                              key={k}
-                              onClick={() => {
-                                setDocumentId('0');
-                                setDaoTemplate(i);
-                                setIsOpen(true);
-                              }}
-                              className="hover:bg-stone-200 hover:dark:bg-stone-600 outline-none cursor-pointer rounded-md px-3 py-2">
-                              {i.name}
-                            </DropdownMenuItem>
-                          ))} */}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                  <div className="text-xs mb-4">
-                    Access to your draft proposals.
-                  </div>
-                  <hr className="dark:border-stone-700" />
-                  {/* the draft list  */}
-                  <div className="flex  overflow-auto  flex-col mt-4 min-h-screen gap-1">
-                    {loading ? (
-                      <Loader />
-                    ) : documents && documents.length > 0 ? (
-                      <DraftList
-                        handleOpenDraft={(e: any) => handleOpenDraft(e)}
-                        documents={documents}
-                        afterOperation={fetchDocuments}
-                      />
-                    ) : (
-                      <div className="flex gap-4 mt-4 flex-col items-center justify-center">
-                        <MoonIcon width={40} height={40} />
-                        No drafts to display
-                      </div>
-                    )}
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* dao resources */}
-            <div
-              className={`overflow-hidden  rounded-lg flex
+                {/* dao resources */}
+                <div
+                  className={`overflow-hidden  rounded-lg flex
                   transition-all duration-300 ease-in-out
                     ${isResourcesOpen ? 'max-h-full' : 'max-h-0'}
                   `}>
-              <div className="pb-2 w-full">
-                <DaoLinks arrayLinks={daoLinks} />
-              </div>
-            </div>
+                  <div className="pb-2 w-full">
+                    <DaoLinks arrayLinks={daoLinks} />
+                  </div>
+                </div>
 
-            {/* activity feed  */}
-            <div
-              className={` rounded-lg  overflow-hidden transition-all duration-300 ease-in-out
+                {/* activity feed  */}
+                <div
+                  className={` rounded-lg  overflow-hidden transition-all duration-300 ease-in-out
                 ${isActivityOpen ? 'max-h-full' : 'max-h-0'}  `}>
-              <div className="pb-2">
-                <ActivityFeed />
-              </div>
-            </div>
+                  <div className="pb-2">
+                    <ActivityFeed />
+                  </div>
+                </div>
 
-            {/* calendar  */}
-            <div
-              className={` rounded-lg
+                {/* calendar  */}
+                <div
+                  className={` rounded-lg
                   overflow-hidden transition-all duration-300 ease-in-out
                   ${isCalendarOpen ? 'max-h-full' : 'max-h-0'}
                 `}>
-              <>
-                <div
-                  className={`
+                  <>
+                    <div
+                      className={`
                   overflow-hidden transition-all duration-300 ease-in-out 
                   ${isCalendarOpen ? 'max-h-full' : 'max-h-0'}
                 `}>
-                  {isCalendarOpen && (
-                    <div className="w-full rounded-lg border dark:border-stone-700 shadow  ">
-                      <div
-                        id="sector2"
-                        className="flex  flex-col sm:flex-row w-full">
-                        {idDao === 'arbitrum' && <ArbitrumAnn />}
-                      </div>
+                      {isCalendarOpen && (
+                        <div className="w-full rounded-lg border dark:border-stone-700 shadow  ">
+                          <div
+                            id="sector2"
+                            className="flex  flex-col sm:flex-row w-full">
+                            {idDao === 'arbitrum' && <ArbitrumAnn />}
+                          </div>
 
-                      {/* das kalender  */}
-                      <div
-                        className="mx-4 mt-2 text-stone-600
+                          {/* das kalender  */}
+                          <div
+                            className="mx-4 mt-2 text-stone-600
                       dark:text-stone-200 text-centers  mb-4 pt-3  text-lg font-semibold ">
-                        Upcoming Events
-                      </div>
-                      <div className="flex flex-wrap justify-center pb-6 gap-4 ">
-                        {calendar.length > 0 ? (
-                          calendar.map((item: any, key) => (
-                            <div key={key}>
-                              <DaoEvent
-                                id={item.id}
-                                updated={item.updated}
-                                summary={item.summary}
-                                creatorEmail={item.creatorEmail}
-                                htmlLink={item.htmlLink}
-                                start={item.start}
-                                startTimezone={item.startTimezone}
-                                end={item.end}
-                                endTimeZone={item.endTimeZone}
-                                hangoutLink={item.hangoutLink}
-                              />
-                            </div>
-                          ))
-                        ) : (
-                          <>No events set for the next two weeks</>
-                        )}
-                      </div>
+                            Upcoming Events
+                          </div>
+                          <div className="flex flex-wrap justify-center pb-6 gap-4 ">
+                            {calendar.length > 0 ? (
+                              calendar.map((item: any, key) => (
+                                <div key={key}>
+                                  <DaoEvent
+                                    id={item.id}
+                                    updated={item.updated}
+                                    summary={item.summary}
+                                    creatorEmail={item.creatorEmail}
+                                    htmlLink={item.htmlLink}
+                                    start={item.start}
+                                    startTimezone={item.startTimezone}
+                                    end={item.end}
+                                    endTimeZone={item.endTimeZone}
+                                    hangoutLink={item.hangoutLink}
+                                  />
+                                </div>
+                              ))
+                            ) : (
+                              <>No events set for the next two weeks</>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </>
                 </div>
-              </>
-            </div>
 
-            {/* dao setting */}
-            {/* <div
+                {/* dao setting */}
+                {/* <div
               className={` rounded-lg  overflow-hidden transition-all duration-300 ease-in-out
                 ${isSettingsOpen ? 'max-h-full' : 'max-h-0'}  `}>
               <div className="pb-2">
@@ -713,28 +685,24 @@ _We have suggested applicants request 80% of the amount of impact they believe t
                 </button>
               </div>
             </div> */}
-          </div>
-        </div>
-
-        {/* sliding editor  */}
-        {isOpen ? (
-          // <div
-          //   className="px-3
-          //     bg-stone-100 dark:bg-stone-700 dark:text-stone-400
-          //     bg-opacity-90 backdrop-blur-sm rounded-xl
-          //     absolute z-50 w-full h-screen right-0 shadow-lg
-          //     transition-opacity duration-300 ease-in-out
-          //     opacity-100">
-          <div
-            className="left-1/3 px-4
+              </div>
+            </div>
+          ) : (
+            // <div
+            //   className="px-3
+            //     bg-stone-100 dark:bg-stone-700 dark:text-stone-400
+            //     bg-opacity-90 backdrop-blur-sm rounded-xl
+            //     absolute z-50 w-full h-screen right-0 shadow-lg
+            //     transition-opacity duration-300 ease-in-out
+            //     opacity-100">
+            <div
+              // sliding editor
+              className=" px-4
             bg-stone-100 dark:bg-stone-800 dark:text-stone-400
-            bg-opacity-90 backdrop-blur-sm rounded-xl
-            absolute z-50 w-full h-screen right-0 shadow-lg 
+              
+             shadow-lg w-full
             transition-opacity duration-300 ease-in-out
             opacity-100">
-            <div
-              className="w-2/3 bg-red-s flex flex-col end-0 "
-              style={{ height: '100vh' }}>
               {user?.wallet?.address && idDao && (
                 <CollaborativeEditor
                   daoTemplate={daoTemplate}
@@ -748,17 +716,18 @@ _We have suggested applicants request 80% of the amount of impact they believe t
                 />
               )}
             </div>
-          </div>
-        ) : (
+          )
+          //  : (
           // </div>
-          <div
-            className="
-            bg-slate-200 dark:bg-stone-700 dark:text-stone-400
-            bg-opacity-90 backdrop-blur-sm rounded-xl
-            absolute z-50 w-2/3 h-screen right-0 pt-10 shadow-lg
-            transition-opacity duration-300 ease-in-out
-            opacity-0 pointer-events-none"></div>
-        )}
+          // <div
+          //   className="
+          //   bg-slate-200 dark:bg-stone-700 dark:text-stone-400
+          //   bg-opacity-90 backdrop-blur-sm rounded-xl
+          //   absolute z-5 w-2/3 h-screen right-0 pt-10 shadow-lg
+          //   transition-opacity duration-300 ease-in-out
+          //   opacity-0 pointer-events-none"></div>
+          // )
+        }
       </div>
     </PlatformLayout>
   );
