@@ -217,7 +217,7 @@ const MarkdownEditor: React.FC<{
         <MDXEditor
           contentEditableClassName="prose-sm prose dark:prose-invert max-w-none"
           markdown="Hello world"
-          className="h-full overflow-y-auto "
+          className="bg-transparent h-full overflow-y-auto "
           plugins={[
             imagePlugin({
               imageUploadHandler: () => {
