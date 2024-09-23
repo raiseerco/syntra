@@ -413,7 +413,7 @@ _We have suggested applicants request 80% of the amount of impact they believe t
                         <button
                           onClick={() => setIsProjectsMinimized(false)}
                           className=" flex gap-x-4 items-center sm:transform
-                       sm:-rotate-90 border dark:text-stone-300 dark:border-stone-700 px-4 py-2 rounded-lg">
+                       sm:-rotate-90 border dark:text-stone-300 dark:border-stone-700 px-3 py-2 rounded-lg">
                           <div className=" whitespace-nowrap">
                             Projects
                             <span className="ml-4 font-bold text-xs">

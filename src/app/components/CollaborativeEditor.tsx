@@ -198,14 +198,14 @@ const MarkdownEditor: React.FC<{
   };
 
   return (
-    <div id="whole" className="w-full h-screen flex ">
+    <div id="whole" className="w-full h-screen flex">
       <div
         id="half1"
-        className="w-9/12 border-r h-full mb-10 pb-20 pr-3 border-stone-200 dark:border-stone-700">
+        className="w-9/12 border-rs h-full mb-10 pb-20 pr-1 border-stone-200 dark:border-stone-700">
         <input
           onChange={e => setTitle(e.target.value)}
           value={title}
-          className="py-2 px-3 mr-2 mt-1 mb-4 w-full
+          className="py-2 px-3 mr-2 mt-2 mb-2 text-2xl w-full
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
             bg-transparent
@@ -217,7 +217,7 @@ const MarkdownEditor: React.FC<{
         <MDXEditor
           contentEditableClassName="prose-sm prose dark:prose-invert max-w-none"
           markdown="Hello world"
-          className="bg-transparent h-full overflow-y-auto "
+          className="bg-transparent h-full overflow-y-auto shadow-md p-3 bg-white dark:bg-stone-700 rounded-md"
           plugins={[
             imagePlugin({
               imageUploadHandler: () => {
