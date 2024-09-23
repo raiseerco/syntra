@@ -208,16 +208,22 @@ const MarkdownEditor: React.FC<{
           className="py-2 px-3 mr-2 mt-2 mb-2 text-2xl w-full
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
-            bg-transparent
+            bg-transparent 
             outline-none rounded-sm"
           placeholder="Draft title..."
           type="text"
         />
 
         <MDXEditor
-          contentEditableClassName="prose-sm prose dark:prose-invert max-w-none"
+          contentEditableClassName="prose   prose-sm  dark:prose-invert max-w-none
+          prose-h1:text-3xl prose-headings:font-semibold
+          prose-h2:text-2xl
+          prose-h3:text-xl
+          prose-h4:text-lg
+          prose-h5:text-base "
           markdown="Hello world"
-          className="bg-transparent h-full overflow-y-auto shadow-md p-3 bg-white dark:bg-stone-700 rounded-md"
+          className="bg-transparent h-full overflow-y-auto 
+          shadow-md py-3 px-5 bg-white dark:bg-stone-700 rounded-md"
           plugins={[
             imagePlugin({
               imageUploadHandler: () => {
@@ -235,7 +241,7 @@ const MarkdownEditor: React.FC<{
             thematicBreakPlugin(),
             linkDialogPlugin(),
             linkPlugin(),
-            headingsPlugin({ allowedHeadingLevels: [1, 2, 3] }),
+            headingsPlugin({ allowedHeadingLevels: [1, 2, 3, 4] }),
             tablePlugin(),
             listsPlugin(),
             toolbarPlugin({

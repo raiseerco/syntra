@@ -465,7 +465,7 @@
   --text-xxs: 0.6rem;
 
   font-family: var(--font-body);
-  color: var(--baseText);
+  /* color: var(--baseText); */
 }
 
 ._editorWrapper_uazmk_154 {
@@ -498,8 +498,8 @@
   position: sticky;
   top: 0;
   background-color: var(--toolbar-bg);
-  /* width: fit-content; */
-  /* margin: auto; */
+  width: fit-content;
+  margin: auto;
 }
 
 ._toolbarRoot_uazmk_160 div[role='separator'] {
@@ -732,7 +732,7 @@
 ._contentEditable_uazmk_379 {
   box-sizing: border-box;
   width: 100%;
-  color: var(--baseTextContrast);
+  /* color: var(--baseTextContrast); */
 
   padding-top: var(--spacing-3);
 }

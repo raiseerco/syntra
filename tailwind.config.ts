@@ -11,6 +11,41 @@ const config = {
   ],
   prefix: '',
   theme: {
+    typography: {
+      DEFAULT: {
+        // this is for prose class
+        css: {
+          lineHeight: '1.5',
+          menu: {
+            listStyle: 'revert',
+            margin: 'revert',
+            padding: 'revert',
+          },
+          ol: {
+            listStyle: 'revert',
+            margin: 'revert',
+            padding: 'revert',
+          },
+          ul: {
+            listStyle: 'revert',
+            margin: 'revert',
+            padding: 'revert',
+          },
+          blockquote: {
+            borderLeft: '4px solid #a8a29e', // stone-400 para modo claro
+            paddingLeft: '1rem',
+            paddingTop: '0.5rem',
+            paddingBottom: '0.5rem',
+            fontStyle: 'italic',
+            color: 'black',
+            backgroundColor: '#cccccc57', // stone-100 para modo claro
+            quotes: '"\\201C""\\201D""\\2018""\\2019"',
+            borderRadius: '0.5rem',
+            margin: '1rem',
+          },
+        },
+      }, // this is for prose classs
+    },
     container: {
       center: true,
       padding: '2rem',
