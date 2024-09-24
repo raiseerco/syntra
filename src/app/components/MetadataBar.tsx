@@ -59,7 +59,7 @@ export default function MetadataBar({
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col mt-6 gap-2">
         <div className="flex flex-col gap-1 mb-1">
           <div className="flex gap-2 items-center">
             <Link2Icon /> Related Discussion Link

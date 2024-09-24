@@ -8,19 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu';
-import {
-  MoonIcon,
-  PinBottomIcon,
-  PinLeftIcon,
-  PinRightIcon,
-} from '@radix-ui/react-icons';
+import { MoonIcon, PinBottomIcon, PinLeftIcon } from '@radix-ui/react-icons';
 import { fetchAllDocuments, upsertDocument } from '../../../lib/utils';
 import { useEffect, useState } from 'react';
 
 import { ALL_DOCS_FOLDER } from '../../../lib/constants';
 import ActivityFeed from '../../components/ActivityFeed';
 import ArbitrumAnn from '../../components/ArbitrumAnn';
-//  import CollaborativeEditor from '../../components/CollaborativeEditor';
 import DaoEvent from '../../components/DaoEvents';
 import { DaoLink } from '../../../types/DaoLink';
 import DaoLinks from '../../components/DaoLinks';
@@ -44,7 +38,6 @@ const CollaborativeEditor = dynamic(
 export default function DaoPage({ params }: { params: { id: string } }) {
   const { id: idDao } = params;
   // const par = useParams();
-
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isDraftsOpen, setIsDraftsOpen] = useState(true);
   const [daoTemplate, setDaoTemplate] = useState<any>();
@@ -91,41 +84,41 @@ export default function DaoPage({ params }: { params: { id: string } }) {
       title: 'Mission request',
       markdown: `
       # Mission Request Template
-_[For more information regarding concepts and requirements please check Mission Request Creation Guide](https://gov.optimism.io/t/season-6-mission-request-creation-guide/8123)_
-_Please note Missions must be completed within 12 months (i.e. marked as done)._
+              _[For more information regarding concepts and requirements please check Mission Request Creation Guide](https://gov.optimism.io/t/season-6-mission-request-creation-guide/8123)_
+              _Please note Missions must be completed within 12 months (i.e. marked as done)._
 
-**Delegate Mission Request Summary:** _Mission Requests should be tightly scoped and well-specified. You can see examples [here 9](https://github.com/ethereum-optimism/ecosystem-contributions/issues?q=is%3Aissue+is%3Aopen+RFP). You should describe your Mission Request in 1-2 sentences here._
+              **Delegate Mission Request Summary:** _Mission Requests should be tightly scoped and well-specified. You can see examples [here 9](https://github.com/ethereum-optimism/ecosystem-contributions/issues?q=is%3Aissue+is%3Aopen+RFP). You should describe your Mission Request in 1-2 sentences here._
 
-**S6 [Intent 39](https://gov.optimism.io/t/season-6-intents-ratification/8104):** _Please list the Intent your Request aligns with here_
+              **S6 [Intent 39](https://gov.optimism.io/t/season-6-intents-ratification/8104):** _Please list the Intent your Request aligns with here_
 
-**Proposing Delegate/Citizen:** _Delegate name/pseudonym, linked to delegate profile_
+              **Proposing Delegate/Citizen:** _Delegate name/pseudonym, linked to delegate profile_
 
-**Total grant amount:** _This amount should reflect the total amount required to execute the Mission. If a Request specifies multiple applicants, the grant amount should reflect the total OP required to support all qualified applicants. (e.g., if the Request is to make 50k OP grants to 4 applicants, you could specify the total grant amount as 200k OP.)_
+              **Total grant amount:** _This amount should reflect the total amount required to execute the Mission. If a Request specifies multiple applicants, the grant amount should reflect the total OP required to support all qualified applicants. (e.g., if the Request is to make 50k OP grants to 4 applicants, you could specify the total grant amount as 200k OP.)_
 
-_We have suggested applicants request 80% of the amount of impact they believe they will generate, incentivizing the rest to be rewarded retroactively based on quality of execution in future Retro Funding Rounds._
+              _We have suggested applicants request 80% of the amount of impact they believe they will generate, incentivizing the rest to be rewarded retroactively based on quality of execution in future Retro Funding Rounds._
 
-**For clarity, additional Retro Funding is never guaranteed and applicants should not submit applications on the assumption that they will receive more than the upfront grant.**
+              **For clarity, additional Retro Funding is never guaranteed and applicants should not submit applications on the assumption that they will receive more than the upfront grant.**
 
-**Should this Mission be fulfilled by one or multiple applicants:** _Select from: “One,” “Up to X” or “Multiple”_
+              **Should this Mission be fulfilled by one or multiple applicants:** _Select from: “One,” “Up to X” or “Multiple”_
 
-**How will this Mission Request help accomplish the above Intent?**
+              **How will this Mission Request help accomplish the above Intent?**
 
-- _Please explain alignment with the relevant Intent_
+              - _Please explain alignment with the relevant Intent_
 
-**What is required to execute this Mission Request?**
+              **What is required to execute this Mission Request?**
 
-- _Please list responsibilities and/or expected deliverables_
+              - _Please list responsibilities and/or expected deliverables_
 
-**How should governance participants measure impact upon completion of this Mission?**
+              **How should governance participants measure impact upon completion of this Mission?**
 
-- **Milestones:** _These measures should measure progress towards completion, including expected completion dates for each is recommended_
+              - **Milestones:** _These measures should measure progress towards completion, including expected completion dates for each is recommended_
 
-- **Metrics:** _In order to standardize evaluation, it is recommended that metrics for success and milestones tie back to the target metrics listed under each Intent as much as possible._
+              - **Metrics:** _In order to standardize evaluation, it is recommended that metrics for success and milestones tie back to the target metrics listed under each Intent as much as possible._
 
-- **Impact:** _These measures should be focused on performance and may be used to assess your Misson’s impact in the next round of Retro Funding_
+              - **Impact:** _These measures should be focused on performance and may be used to assess your Misson’s impact in the next round of Retro Funding_
 
-**Has anyone other than the proposer contributed to this Mission Request?** _If so, who, and what parts of this application did they contribute to? If you sponsored another community members idea, please credit them here._
-      
+              **Has anyone other than the proposer contributed to this Mission Request?** _If so, who, and what parts of this application did they contribute to? If you sponsored another community members idea, please credit them here._
+                    
       `,
 
       timestamp: Date.now(),
@@ -317,7 +310,7 @@ _We have suggested applicants request 80% of the amount of impact they believe t
 
   return (
     <PlatformLayout>
-      <div className="flex relative z-0 w-full">
+      <div className="flex relativesz-0 w-full">
         {
           !isEditorOpen ? (
             <div className="flex flex-col w-full px-5">
@@ -413,7 +406,7 @@ _We have suggested applicants request 80% of the amount of impact they believe t
                         <button
                           onClick={() => setIsProjectsMinimized(false)}
                           className=" flex gap-x-4 items-center sm:transform
-                       sm:-rotate-90 border dark:text-stone-300 dark:border-stone-700 px-3 py-2 rounded-lg">
+                            sm:-rotate-90 border dark:text-stone-300 dark:border-stone-700 px-3 py-2 rounded-lg">
                           <div className=" whitespace-nowrap">
                             Projects
                             <span className="ml-4 font-bold text-xs">
@@ -426,9 +419,9 @@ _We have suggested applicants request 80% of the amount of impact they believe t
                     ) : (
                       <div
                         className={`'bg-transparent border p-4 rounded-xl  text-stone-600 dark:text-stone-300
-                      border-stone-200 dark:border-stone-700 h-screen' ${
-                        isProjectsCollapsed ? 'w-1/4' : 'w-full'
-                      }`}>
+                          border-stone-200 dark:border-stone-700 h-screen' ${
+                            isProjectsCollapsed ? 'w-1/4' : 'w-full'
+                          }`}>
                         <div className="flex justify-between">
                           <div className="text-lg font-semibold">Projects</div>
                           <div className="relative">
@@ -695,14 +688,14 @@ _We have suggested applicants request 80% of the amount of impact they believe t
             //     absolute z-50 w-full h-screen right-0 shadow-lg
             //     transition-opacity duration-300 ease-in-out
             //     opacity-100">
+
+            // sliding editor
             <div
-              // sliding editor
               className=" px-4
-            bg-stone-100 dark:bg-stone-800 dark:text-stone-400
-              
-             shadow-lg w-full
-            transition-opacity duration-300 ease-in-out
-            opacity-100">
+                bg-stone-100 dark:bg-stone-800 dark:text-stone-400
+                shadow-lg w-full
+                transition-opacity duration-300 ease-in-out
+                opacity-100">
               {user?.wallet?.address && idDao && (
                 <CollaborativeEditor
                   daoTemplate={daoTemplate}

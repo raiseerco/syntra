@@ -105,11 +105,6 @@ const MarkdownEditor: React.FC<{
     fetchDocument();
   }, [documentId, folder]);
 
-  // useEffect(() => {
-  //   ref.current?.setMarkdown(cont);
-  //   console.log('fetched2!', cont);
-  // }, [cont]);
-
   const handleSave = async () => {
     if (
       typeof link !== 'undefined' ||
@@ -189,13 +184,6 @@ const MarkdownEditor: React.FC<{
         />
 
         <ForwardRefEditor
-          // contentEditableClassName="prose
-          // prose-sm  dark:prose-invert max-w-none
-          //  prose-h1:text-3xl prose-headings:font-semibold
-          //  prose-h2:text-2xl
-          //  prose-h3:text-xl
-          //  prose-h4:text-lg
-          //  prose-h5:text-base "
           onChange={e => setCont(e)}
           markdown={cont}
           ref={ref}

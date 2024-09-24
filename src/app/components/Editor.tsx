@@ -31,28 +31,12 @@ interface EditorProps {
   editorRef: ForwardedRef<MDXEditorMethods>;
 }
 
-/**
- * Extend this Component further with the necessary plugins or props you need.
- * proxying the ref is necessary.
- *  Next.js dynamically imported components don't support refs.
- */
 const Editor = ({
   editorRef,
   ...props
 }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & MDXEditorProps) => {
-  //   console.log('markdown ', markdown);
-  //   editorRef?.current?.setMarkdown(markdown);
-
   return (
-    // <MDXEditor
-    //   onChange={e => console.log(e)}
-    //   ref={editorRef}
-    //   markdown={markdown}
-    //   plugins={[headingsPlugin()]}
-    // />
-
     <MDXEditor
-      //   markdown={markdown}
       contentEditableClassName="prose  
        prose-sm  dark:prose-invert max-w-none
         prose-h1:text-3xl prose-headings:font-semibold
@@ -60,7 +44,7 @@ const Editor = ({
         prose-h3:text-xl
         prose-h4:text-lg
         prose-h5:text-base "
-      className="bg-transparent h-full overflow-y-auto 
+      className="h-full overflow-y-auto 
         shadow-md py-3 px-5 bg-white dark:bg-stone-700 rounded-md"
       plugins={[
         imagePlugin({
