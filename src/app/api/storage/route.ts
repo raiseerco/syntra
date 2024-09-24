@@ -72,6 +72,7 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log('CONTENT ', content);
     if (isNew) {
       const incompletePath = `documents/${pathName}`;
       console.log('incompletePath ', incompletePath);

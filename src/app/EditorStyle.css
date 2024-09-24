@@ -2224,6 +2224,7 @@ form._multiFieldForm_uazmk_1194 ._formField_uazmk_1200 label {
 }
 
 ._code_1tncs_52 {
+  border-radius: var(--radius-base);
   background-color: var(--baseBg);
   padding: 1px 0.25rem;
   font-family: var(--font-mono);

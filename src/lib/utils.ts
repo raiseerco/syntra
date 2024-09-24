@@ -326,6 +326,20 @@ export const preprocessMarkdown = (content: string): string => {
   return processedContent;
 };
 
+export function escapeMD(text: string) {
+  // Escapar caracteres especiales de Markdown
+  const escapedText = text.replace(/[\\`*_{}\[\]()#+\-.!]/g, '\\$&');
+  // const singleLineBreakText = escapedText.replace(/\n{2,}/g, '\n');
+
+  // Reemplazar CR LF por doble espacio + nueva línea para Markdown
+
+  // string.replace(/\n(?!\n)/g, '')
+
+  const formattedText = escapedText; //.replace(/\r\n/g, ' ');
+
+  return formattedText;
+}
+
 // export const preprocessMarkdown = (content: string): string => {
 //   // Regex para los bloques de código
 //   const codeBlockRegex = /```[\s\S]*?```/g;

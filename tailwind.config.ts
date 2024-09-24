@@ -1,3 +1,4 @@
+import { backIn } from 'framer-motion';
 import type { Config } from 'tailwindcss';
 
 const config = {
@@ -15,7 +16,8 @@ const config = {
       DEFAULT: {
         // this is for prose class
         css: {
-          lineHeight: '1.5',
+          lineHeight: '1.5rem',
+
           menu: {
             listStyle: 'revert',
             margin: 'revert',
