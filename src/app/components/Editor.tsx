@@ -45,7 +45,7 @@ const Editor = ({
         prose-h4:text-lg
         prose-h5:text-base "
       className="h-full overflow-y-auto 
-        shadow-md py-3 px-5 bg-white dark:bg-stone-700 rounded-md"
+        py-3 px-5 "
       plugins={[
         imagePlugin({
           imageUploadHandler: () => {
