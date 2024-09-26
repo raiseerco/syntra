@@ -23,7 +23,6 @@ import Link from 'next/link';
 import Loader from '../components/ui/Loader';
 import { LoginButton } from '../components/ui/LoginButton';
 import { initMixpanel } from '../../lib/mixpanel';
-import { useAuth } from '../components/contexts/AuthContext';
 import { useDAO } from '../components/contexts/DAOContext';
 import { usePrivy } from '@privy-io/react-auth';
 
@@ -32,28 +31,6 @@ function MainContent({ children }: { children: React.ReactNode }) {
   const { authenticated, user, ready } = usePrivy();
 
   return (
-    // <>
-    //   {!ready ? (
-    //     <div className="flex h-screen w-full items-center justify-center bg-transparent">
-    //       <div className="animate-spin rounded-full h-8 w-8 border-b-4 border-rose-400"></div>
-    //     </div>
-    //   ) : authenticated ? (
-    //     <>{children}</>
-    //   ) : (
-    //     <div className="flex h-screen w-full items-center justify-center bg-transparent">
-    //       <div className="text-center">
-    //         <h1 className="text-5xl font-thin text-stone-800 dark:text-stone-300 mb-4">
-    //           Welcome Back!
-    //         </h1>
-    //         <p className="text-stone-600 dark:text-stone-400 mb-6">
-    //           Please log in to continue using our platform
-    //         </p>
-    //         <LoginButton />
-    //       </div>
-    //     </div>
-    //   )}
-    // </>
-
     <>
       {authenticated ? (
         <>{children}</>
@@ -103,7 +80,7 @@ export default function PlatformLayout({
           {/* content screen */}
           <div className="flex min-h-screen">
             {/* main content */}
-            <main className="ml-44 mt-12 w-full flex  overflow-clip scroll-auto">
+            <main className="ml-44 mt-12 w-full flex overflow-y-auto h-[calc(100vh-3rem)]">
               {/* if not authenticated, nag screen */}
               <MainContent>{children}</MainContent>
             </main>

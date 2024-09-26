@@ -310,10 +310,10 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
   return (
     <PlatformLayout>
-      <div className="flex relativesz-0 w-full">
+      <div className="flex flex-col flex-grow overflow-auto   w-full">
         {
           !isEditorOpen ? (
-            <div className="flex flex-col w-full px-5">
+            <div className="flex flex-col flex-grow overflow-auto w-full px-5">
               {' '}
               {/* dashboard  */}
               {/* tab buttons */}
@@ -329,8 +329,8 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                     setIsActivityOpen(false);
                   }}
                   className={`  rounded-lg px-3 py-2  outline-none
-                ${isDraftsOpen && ' bg-stone-100 dark:bg-stone-700 '}
-              text-stone-600 dark:text-stone-300 text-sm`}>
+                  ${isDraftsOpen && ' bg-stone-100 dark:bg-stone-700 '}
+                text-stone-600 dark:text-stone-300 text-sm`}>
                   Drafts
                 </button>
 
@@ -343,8 +343,8 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                     setIsDraftsOpen(false);
                   }}
                   className={`  rounded-lg px-3 py-2  outline-none
-                ${isResourcesOpen && ' bg-stone-100 dark:bg-stone-700 '}
-              text-stone-600 dark:text-stone-300 text-sm`}>
+                  ${isResourcesOpen && ' bg-stone-100 dark:bg-stone-700 '}
+                text-stone-600 dark:text-stone-300 text-sm`}>
                   DAO resources
                 </button>
 
@@ -392,17 +392,17 @@ export default function DaoPage({ params }: { params: { id: string } }) {
             </button> */}
               </div>
               {/* tabs contents  */}
-              <div className=" ">
+              <div className="flex flex-col flex-grow overflow-auto pb-2 h-full">
                 {/* projects and drafts  */}
                 <div
-                  className={` rounded-lg px-1
-                    overflow-hidden transition-all duration-300 ease-in-out 
+                  className={` rounded-lg px-1 flex flex-col flex-grow overflow-auto
+                    transition-all duration-300 ease-in-out h-full
                     ${isDraftsOpen ? 'max-h-full' : 'max-h-0'}
                   `}>
-                  <div className="flex flex-col sm:flex-row w-full gap-4 pb-2">
+                  <div className="flex flex-col flex-grow overflow-auto sm:flex-row w-full gap-4 pb-2 h-full">
                     {/* project area */}
                     {isProjectsMinimized ? (
-                      <div className="sm:mt-[55px] w-9 relative sm:left-[-52px]     ">
+                      <div className="sm:mt-[55px] w-9 relative sm:left-[-52px] ">
                         <button
                           onClick={() => setIsProjectsMinimized(false)}
                           className=" flex gap-x-4 items-center sm:transform
@@ -418,8 +418,8 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                       </div>
                     ) : (
                       <div
-                        className={`'bg-transparent border p-4 rounded-xl  text-stone-600 dark:text-stone-300
-                          border-stone-200 dark:border-stone-700 h-screen' ${
+                        className={`border p-4 rounded-xl  text-stone-600 dark:text-stone-300
+                          flex flex-col flex-grow overflow-auto border-stone-200 dark:border-stone-700 ${
                             isProjectsCollapsed ? 'w-1/4' : 'w-full'
                           }`}>
                         <div className="flex justify-between">
@@ -483,7 +483,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
                         <hr className="dark:border-stone-700" />
                         {/* the project list  */}
-                        <div className="flex flex-col mt-4 gap-1">
+                        <div className="flex flex-col flex-grow overflow-auto mt-4 gap-1">
                           {projects && projects.length > 0 ? (
                             <ProjectList
                               handleSelect={e => handleSelectProject(e)}
@@ -501,9 +501,9 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
                     {/* draft area  */}
                     <div
-                      className="bg-transparent w-full border p-4 rounded-xl
-                  text-stone-600 dark:text-stone-300
-                  border-stone-200 dark:border-stone-700 h-auto">
+                      className="  w-full border p-4 rounded-xl h-full flex flex-col flex-grow overflow-auto
+                    text-stone-600 dark:text-stone-300
+                    border-stone-200 dark:border-stone-700">
                       <div className="flex items-baseline justify-between">
                         <div className="text-lg font-semibold">Drafts</div>
                         <div className="flex gap-2">
@@ -563,7 +563,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                       </div>
                       <hr className="dark:border-stone-700" />
                       {/* the draft list  */}
-                      <div className="flex  overflow-auto  flex-col mt-4 min-h-screen gap-1">
+                      <div className="flex flex-col flex-grow overflow-auto mt-4 h-full gap-1">
                         {loading ? (
                           <Loader />
                         ) : documents && documents.length > 0 ? (
@@ -585,11 +585,11 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
                 {/* dao resources */}
                 <div
-                  className={`overflow-hidden  rounded-lg flex
-                  transition-all duration-300 ease-in-out
+                  className={` rounded-lg flex
+                  transition-all duration-300 ease-in-out h-full overflow-auto
                     ${isResourcesOpen ? 'max-h-full' : 'max-h-0'}
                   `}>
-                  <div className="pb-2 w-full">
+                  <div className=" w-full">
                     <DaoLinks arrayLinks={daoLinks} />
                   </div>
                 </div>
@@ -605,18 +605,21 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
                 {/* calendar  */}
                 <div
-                  className={` rounded-lg
+                  className={` rounded-lg h-full
                   overflow-hidden transition-all duration-300 ease-in-out
                   ${isCalendarOpen ? 'max-h-full' : 'max-h-0'}
                 `}>
                   <>
                     <div
-                      className={`
-                  overflow-hidden transition-all duration-300 ease-in-out 
+                      className={` flex flex-col flex-grow overflow-auto
+                transition-all duration-300 ease-in-out  h-full
                   ${isCalendarOpen ? 'max-h-full' : 'max-h-0'}
                 `}>
                       {isCalendarOpen && (
-                        <div className="w-full rounded-lg border dark:border-stone-700 shadow  ">
+                        <div
+                          className="w-full h-full
+                        flex flex-col flex-grow overflow-auto
+                        rounded-lg border dark:border-stone-700 shadow  ">
                           <div
                             id="sector2"
                             className="flex  flex-col sm:flex-row w-full">
@@ -626,26 +629,29 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                           {/* das kalender  */}
                           <div
                             className="mx-4 mt-2 text-stone-600
-                      dark:text-stone-200 text-centers  mb-4 pt-3  text-lg font-semibold ">
+                          dark:text-stone-200 text-centers mb-4 pt-3 text-lg font-semibold ">
                             Upcoming Events
                           </div>
-                          <div className="flex flex-wrap justify-center pb-6 gap-4 ">
+                          <div
+                            className="flex flex-wrap justify-center pb-6 gap-4 h-full
+                           flex-grow overflow-auto">
                             {calendar.length > 0 ? (
                               calendar.map((item: any, key) => (
-                                <div key={key}>
-                                  <DaoEvent
-                                    id={item.id}
-                                    updated={item.updated}
-                                    summary={item.summary}
-                                    creatorEmail={item.creatorEmail}
-                                    htmlLink={item.htmlLink}
-                                    start={item.start}
-                                    startTimezone={item.startTimezone}
-                                    end={item.end}
-                                    endTimeZone={item.endTimeZone}
-                                    hangoutLink={item.hangoutLink}
-                                  />
-                                </div>
+                                // <div key={key}>
+                                <DaoEvent
+                                  key={key}
+                                  id={item.id}
+                                  updated={item.updated}
+                                  summary={item.summary}
+                                  creatorEmail={item.creatorEmail}
+                                  htmlLink={item.htmlLink}
+                                  start={item.start}
+                                  startTimezone={item.startTimezone}
+                                  end={item.end}
+                                  endTimeZone={item.endTimeZone}
+                                  hangoutLink={item.hangoutLink}
+                                />
+                                // </div>
                               ))
                             ) : (
                               <>No events set for the next two weeks</>

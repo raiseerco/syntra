@@ -171,18 +171,17 @@ const MarkdownEditor: React.FC<{
     <div id="main" className="w-full h-screen flex">
       {/* editor  */}
       <div
-        className="w-9/12 border-rs h-full mb-10 pb-20 pr-1
-      bg-white dark:bg-stone-700 rounded-md shadow-md my-4
+        className="w-9/12 h-full p-4 my-4
+       dark:bg-stone-700 rounded-md shadow-md 
       border-stone-200 dark:border-stone-700">
         <input
           onChange={e => setTitle(e.target.value)}
           value={title}
-          className="py-2 px-3 mr-2 mt-2 mb-2s text-2xl w-full
+          className="text-2xl w-full 
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
-
             bg-white dark:bg-stone-700 
-            outline-none rounded-t-md"
+            outline-none"
           placeholder="Draft title..."
           type="text"
         />

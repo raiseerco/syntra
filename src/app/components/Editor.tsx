@@ -38,14 +38,14 @@ const Editor = ({
   return (
     <MDXEditor
       contentEditableClassName="prose  
-       prose-sm  dark:prose-invert max-w-none
+       prose-sm dark:prose-invert max-w-none
         prose-h1:text-3xl prose-headings:font-semibold
         prose-h2:text-2xl
         prose-h3:text-xl
         prose-h4:text-lg
         prose-h5:text-base "
-      className="h-full overflow-y-auto 
-        py-3 px-5 "
+      className="h-full overflow-y-auto bg-fuchsia-500
+        py-3px-5 "
       plugins={[
         imagePlugin({
           imageUploadHandler: () => {
