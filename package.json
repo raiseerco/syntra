@@ -9,14 +9,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build": "next build"
   },
   "dependencies": {
-    "@fileverse-dev/ddoc": "^1.7.6-patch-2",
     "@lighthouse-web3/sdk": "^0.3.7",
-    "@mdxeditor/editor": "^3.11.5",
     "@privy-io/react-auth": "^1.76.0",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
@@ -36,6 +34,7 @@
     "js-sha256": "^0.11.0",
     "lucide-react": "^0.414.0",
     "marked": "^14.0.0",
+    "mdx-float": "^0.0.1-development",
     "mixpanel": "^0.18.0",
     "mixpanel-browser": "^2.55.1",
     "next": "14.2.5",

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  BlockTypeSelect,
   BoldItalicUnderlineToggles,
   CodeToggle,
   CreateLink,
@@ -28,7 +27,7 @@ import {
   tablePlugin,
   thematicBreakPlugin,
   toolbarPlugin,
-} from '@mdxeditor/editor';
+} from  'mdx-float'
 import { ForwardedRef, useEffect } from 'react';
 
 const Editor = ({

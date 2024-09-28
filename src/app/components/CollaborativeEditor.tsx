@@ -187,7 +187,7 @@ const MarkdownEditor: React.FC<{
         />
 
         <ForwardRefEditor
-          onChange={e => setCont(e)}
+          onChange={(e: any) => setCont(e)}
           markdown={cont}
           ref={ref}
         />
