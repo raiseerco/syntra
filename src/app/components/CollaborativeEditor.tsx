@@ -14,7 +14,7 @@ import {
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
 import { ForwardRefEditor } from './ForwardRefEditor';
 import Loader from './ui/Loader';
-import { MDXEditorMethods } from '@mdxeditor/editor';
+import { MDXEditorMethods } from 'mdx-float';
 import MetadataBar from './MetadataBar';
 
 const MarkdownEditor: React.FC<{
