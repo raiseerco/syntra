@@ -5,6 +5,9 @@ import {
   BoldItalicUnderlineToggles,
   CodeToggle,
   CreateLink,
+  H1Toggle,
+  H2Toggle,
+  H3Toggle,
   InsertImage,
   InsertTable,
   InsertThematicBreak,
@@ -12,6 +15,8 @@ import {
   MDXEditor,
   MDXEditorMethods,
   MDXEditorProps,
+  ParagraphToggle,
+  QuoteToggle,
   UndoRedo,
   headingsPlugin,
   imagePlugin,
@@ -26,11 +31,6 @@ import {
 } from '@mdxeditor/editor';
 import { ForwardedRef, useEffect } from 'react';
 
-interface EditorProps {
-  markdown: string;
-  editorRef: ForwardedRef<MDXEditorMethods>;
-}
-
 const Editor = ({
   editorRef,
   ...props
@@ -42,37 +42,34 @@ const Editor = ({
       );
 
       const selection = window.getSelection();
-
       if (typeof selection === 'undefined') return;
+      if (selection !== null && !selection.isCollapsed) {
+        const isCode =
+          selection?.anchorNode?.parentNode?.parentElement?.nodeName === 'CODE';
+        const isLexical =
+          selection?.anchorNode?.parentElement?.dataset.lexicalText;
 
-      if (
-        selection === null ||
-        (selection.rangeCount > 0 && !selection.isCollapsed)
-      ) {
-        const isSelected =
-          selection?.anchorNode?.parentElement?.dataset.lexicalText || false;
+        if (isLexical || (!isLexical && isCode)) {
+          if (selection?.type === 'Range') {
+            const range = selection?.getRangeAt(0);
 
-        if (isSelected) {
-          if (!selection?.rangeCount) return;
+            if (!range) return;
+            const rect = range.getBoundingClientRect();
 
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
+            (toolbar as HTMLElement).style.display = 'revert-layer';
+            (toolbar as HTMLElement).style.position = 'absolute';
+            (toolbar as HTMLElement).style.zIndex = '100';
 
-          console.log('mover ', isSelected);
-          (toolbar as HTMLElement).style.display = 'revert-layer';
-          (toolbar as HTMLElement).style.position = 'absolute';
-          (toolbar as HTMLElement).style.zIndex = '100';
+            (toolbar as HTMLElement).style.top = `${
+              rect.top + window.scrollY - 107
+              // 38
+            }px`;
 
-          (toolbar as HTMLElement).style.top = `${
-            rect.top + window.scrollY - 90
-          }px`;
-
-          (toolbar as HTMLElement).style.left = '0px'; //`${ rect.left + window.scrollX }px`;
+            (toolbar as HTMLElement).style.left = '0px'; //`${ rect.left + window.scrollX }px`;
+          }
         }
       } else {
         (toolbar as HTMLElement).style.display = 'none';
-
-        // setIsToolbarVisible(faxlse); // Ocultar si no hay selección
       }
     };
 
@@ -86,14 +83,14 @@ const Editor = ({
     <MDXEditor
       autoFocus={true}
       placeholder="Write your proposal here..."
-      contentEditableClassName="prose relative 
+      contentEditableClassName="prose  
        prose-sm dark:prose-invert max-w-none
         prose-h1:text-3xl prose-headings:font-semibold
         prose-h2:text-2xl
         prose-h3:text-xl
         prose-h4:text-lg
         prose-h5:text-base "
-      className="h-full overflow-y-auto  relative
+      className="h-full overflow-y-auto  
         py-3px-5 "
       plugins={[
         imagePlugin({
@@ -110,7 +107,7 @@ const Editor = ({
         thematicBreakPlugin(),
         linkDialogPlugin(),
         linkPlugin(),
-        headingsPlugin({ allowedHeadingLevels: [1, 2, 3, 4] }),
+        headingsPlugin({ allowedHeadingLevels: [1, 2, 3] }),
         tablePlugin(),
         listsPlugin(),
         markdownShortcutPlugin(),
@@ -120,7 +117,11 @@ const Editor = ({
               <UndoRedo />
               <BoldItalicUnderlineToggles />
               <CodeToggle />
-              <BlockTypeSelect />
+              <H1Toggle />
+              <H2Toggle />
+              <H3Toggle />
+              <QuoteToggle />
+              <ParagraphToggle />
               <InsertTable />
               <CreateLink />
               <ListsToggle />

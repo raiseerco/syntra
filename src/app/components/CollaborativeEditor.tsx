@@ -171,7 +171,7 @@ const MarkdownEditor: React.FC<{
     <div id="main" className="w-full h-screen flex">
       {/* editor  */}
       <div
-        className="w-9/12 h-full p-4 my-4
+        className="w-9/12 h-full p-4 my-4 relative
        dark:bg-stone-700 rounded-md shadow-md 
       border-stone-200 dark:border-stone-700">
         <input
@@ -180,7 +180,7 @@ const MarkdownEditor: React.FC<{
           className="text-2xl w-full 
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
-            bg-white dark:bg-stone-700 
+            bg-transparent 
             outline-none"
           placeholder="Draft title..."
           type="text"
