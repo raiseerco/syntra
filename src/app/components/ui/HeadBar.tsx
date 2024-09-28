@@ -50,7 +50,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
       }}>
       <div className=" containers flex items-center w-full justify-between px-4 md:px-6">
         <>
-          <span className="  flex gap-2 dark:text-stone-300 items-center">
+          <span className="flex gap-2 dark:text-stone-300 items-center">
             {id?.length > 0 && (
               <>
                 <BlankLink className="text-xl opacity-40" href={'/dao-manager'}>

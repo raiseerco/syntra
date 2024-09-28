@@ -39,27 +39,27 @@ export default function MetadataBar({
         <Loader />
       ) : (
         <div className="flex justify-end gap-2">
-          <button
+          {/* <button
             onClick={handleSave}
             className="text-xs rounded-md px-3 py-2 mt-2
                              dark:hover:bg-stone-700
                              hover:bg-stone-200
                              dark:text-stone-400 text-stone-900">
             Save
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             onClick={handleClose}
             className="text-xs rounded-md px-3 py-2 mt-2
                              dark:hover:bg-stone-700
                              hover:bg-stone-200
                              dark:text-stone-400 text-stone-900">
             Close
-          </button>
+          </button> */}
         </div>
       )}
 
-      <div className="flex flex-col mt-6 gap-2">
+      <div className="flex flex-col mt-4 px-2 gap-2">
         <div className="flex flex-col gap-1 mb-1">
           <div className="flex gap-2 items-center">
             <Link2Icon /> Related Discussion Link
@@ -143,6 +143,18 @@ export default function MetadataBar({
             <option defaultValue={''} value={''}></option>
             <option value={'low'}> </option>
           </select>
+        </div>
+
+        <hr className="border-stone-200 dark:border-stone-700 my-4" />
+        <div className="flex justify-center">
+          <button
+            onClick={handleSave}
+            className="text-xs rounded-md px-8 py-3 
+                             dark:bg-stone-700 dark:hover:bg-stone-900 dark:text-stone-400
+                             hover:bg-stone-300 bg-stone-200
+                              text-stone-900">
+            Save
+          </button>
         </div>
       </div>
     </div>
