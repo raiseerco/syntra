@@ -22,7 +22,7 @@ const arr: React.FC<any> = ({ arrayLinks }: DaoLinkProps) => {
           <div
             key={key}
             className="flex justify-between px-4 h-28  bg-stone-100 dark:bg-stone-700
-            dark:hover:bg-rose-900 
+            dark:hover:bg-stone-600 
             hover:bg-rose-100 shadow-md rounded-lg">
             <div className="rounded-lg p-4 text-black dark:text-stone-300 transition-colors flex  justify-center flex-col">
               <div className="flex items-center justify-between">

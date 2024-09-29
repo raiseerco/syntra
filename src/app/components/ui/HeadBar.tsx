@@ -21,7 +21,16 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
   const [address, setAddress] = useState<boolean>(false);
   const par = useParams();
   const id = par.id as string;
-  const { logo, color, setLogo, setColor, colorDark, setColorDark } = useDAO();
+  const {
+    logo,
+    color,
+    setLogo,
+    setColor,
+    colorDark,
+    setColorDark,
+    backBehavior,
+    setBackBehavior,
+  } = useDAO();
   const { theme, setTheme, systemTheme } = useTheme();
 
   useEffect(() => {
@@ -49,13 +58,24 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
             : color,
       }}>
       <div className=" containers flex items-center w-full justify-between px-4 md:px-6">
+        {typeof backBehavior}
         <>
           <span className="flex gap-2 dark:text-stone-300 items-center">
             {id?.length > 0 && (
               <>
-                <BlankLink className="text-xl opacity-40" href={'/dao-manager'}>
-                  ←
-                </BlankLink>
+                {!backBehavior ? (
+                  <BlankLink
+                    className="text-xl opacity-40"
+                    href={'/dao-manager'}>
+                    ←
+                  </BlankLink>
+                ) : (
+                  <button
+                    className="text-xl opacity-40"
+                    onClick={() => backBehavior()}>
+                    ←j
+                  </button>
+                )}
               </>
             )}
           </span>

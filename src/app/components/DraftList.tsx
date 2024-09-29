@@ -213,14 +213,18 @@ export const DraftList = ({
               </div>
             </button>
 
-            <button className="text-xs">
+            <Link
+              target="_blank"
+              href={`/daos/${name}/${i.id}?selectedProject=${i.project}`}
+              className="text-xs"
+              rel="noopener noreferrer">
               <div
                 className="flex gap-2 p-4 hover:bg-stone-200 dark:hover:bg-stone-600 rounded-sm
                hover:dark:text-stone-300 items-center">
                 <ExternalLinkIcon />
-                Open in new tab <small>(Soon™)</small>
+                Open in new tab
               </div>
-            </button>
+            </Link>
           </div>
         )}
       </div>

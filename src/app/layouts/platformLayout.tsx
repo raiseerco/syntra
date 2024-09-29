@@ -75,19 +75,19 @@ export default function PlatformLayout({
           <title>Welcome to Syntra</title>
           <meta name="description" content="Seed" />
         </div>
-        <div className=" xxxx">
+        <div className="  ">
           <HeadBar />
           {/* content screen */}
-          <div className="flex min-h-screen">
+          <div className="flex min-h-screenss  h-screen">
             {/* main content */}
-            <main className="ml-44 mt-12 w-full flex overflow-y-auto h-[calc(100vh-3rem)]">
+            <main className="ml-44 mt-12 w-full flex flex-grow overflow-auto ">
               {/* if not authenticated, nag screen */}
               <MainContent>{children}</MainContent>
             </main>
 
             {/* sidebar */}
             <div
-              className="fixed left-0 h-full justify-between flex w-44 flex-col p-3"
+              className="fixed left-0 h-full justify-between flex w-44 flex-col flex-grow overflow-auto p-3"
               style={{
                 backgroundColor:
                   typeof systemTheme === 'undefined'
