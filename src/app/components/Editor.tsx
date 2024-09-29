@@ -27,7 +27,7 @@ import {
   tablePlugin,
   thematicBreakPlugin,
   toolbarPlugin,
-} from  'mdx-float'
+} from 'mdx-float';
 import { ForwardedRef, useEffect } from 'react';
 
 const Editor = ({
@@ -42,6 +42,7 @@ const Editor = ({
 
       const selection = window.getSelection();
       if (typeof selection === 'undefined') return;
+
       if (selection !== null && !selection.isCollapsed) {
         const isCode =
           selection?.anchorNode?.parentNode?.parentElement?.nodeName === 'CODE';
@@ -58,7 +59,6 @@ const Editor = ({
             (toolbar as HTMLElement).style.display = 'revert-layer';
             (toolbar as HTMLElement).style.position = 'absolute';
             (toolbar as HTMLElement).style.zIndex = '100';
-
             (toolbar as HTMLElement).style.top = `${
               rect.top + window.scrollY - 107
               // 38
@@ -73,24 +73,49 @@ const Editor = ({
     };
 
     document.addEventListener('selectionchange', handleSelectionChange);
+
+    const toolbar = document.querySelector(
+      '.mdxeditor-toolbar._toolbarRoot_uazmk_160',
+    );
+    (toolbar as HTMLElement).style.display = 'none';
+
     return () => {
       document.removeEventListener('selectionchange', handleSelectionChange);
     };
   }, []);
 
+  useEffect(() => {
+    const editorDiv = document.querySelector(
+      'div.mdxeditor._editorRoot_uazmk_53._editorWrapper_uazmk_154',
+    ) as HTMLElement;
+    if (editorDiv) {
+      const handleClick = () => {
+        const editableDiv = document.querySelector(
+          'div[aria-label="editable markdown"]',
+        ) as HTMLElement;
+        if (editableDiv) {
+          editableDiv.focus();
+        }
+      };
+
+      editorDiv.addEventListener('click', handleClick);
+      return () => {
+        editorDiv.removeEventListener('click', handleClick);
+      };
+    }
+  }, []);
+
   return (
     <MDXEditor
-      autoFocus={true}
       placeholder="Write your proposal here..."
       contentEditableClassName="prose  
        prose-sm dark:prose-invert max-w-none
         prose-h1:text-3xl prose-headings:font-semibold
         prose-h2:text-2xl
-        prose-h3:text-xl
+        prose-h3:text-xl 
         prose-h4:text-lg
         prose-h5:text-base "
-      className="h-full overflow-y-auto  
-        py-3px-5 "
+      className=" flex  flex-col flex-grow  overflow-y-auto px-1"
       plugins={[
         imagePlugin({
           imageUploadHandler: () => {

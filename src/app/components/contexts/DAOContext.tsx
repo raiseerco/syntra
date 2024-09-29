@@ -11,6 +11,8 @@ interface DAOContextProps {
   setColorDark: (color: string) => void;
   name: string;
   setName: (name: string) => void;
+  backBehavior: any;
+  setBackBehavior: (backBehavior: any) => void;
 }
 
 const DAOContext = createContext<DAOContextProps | undefined>(undefined);
@@ -28,6 +30,7 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
   const [color, setColor] = useState<any>();
   const [colorDark, setColorDark] = useState<any>();
   const [name, setName] = useState<string>('');
+  const [backBehavior, setBackBehavior] = useState<any>();
 
   return (
     <DAOContext.Provider
@@ -40,6 +43,8 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
         setColorDark,
         name,
         setName,
+        backBehavior,
+        setBackBehavior,
       }}>
       {children}
     </DAOContext.Provider>

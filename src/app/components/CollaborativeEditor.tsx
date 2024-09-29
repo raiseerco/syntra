@@ -16,6 +16,7 @@ import { ForwardRefEditor } from './ForwardRefEditor';
 import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
 import MetadataBar from './MetadataBar';
+import { useDAO } from './contexts/DAOContext';
 
 const MarkdownEditor: React.FC<{
   daoTemplate: any;
@@ -41,7 +42,20 @@ const MarkdownEditor: React.FC<{
   const [collabs, setCollabs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const dn = new Date().getTime().toString();
+  const [docName, setDocName] = useState(documentId === '0' ? dn : documentId);
   const ref = React.useRef<MDXEditorMethods>(null);
+
+  const { setBackBehavior, backBehavior } = useDAO();
+
+  const myFn = (e: any) => {
+    console.log('eee ');
+    // if (e.key === 'Escape') {
+    //   console.log('ESCAPE');
+    //   e.preventDefault();
+    //   setBackBehavior('none');
+    // }
+  };
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -103,15 +117,13 @@ const MarkdownEditor: React.FC<{
     };
 
     fetchDocument();
+    setBackBehavior(myFn);
+    console.log('backBehavior ', backBehavior);
   }, [documentId, folder]);
 
-  const handleSave = async () => {
-    if (
-      typeof link !== 'undefined' ||
-      cont.trim() !== '' ||
-      title.trim() !== ''
-    ) {
-      console.log('saving!');
+  const handleSave = async (exit: boolean = true) => {
+    if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
+      console.log('saving! ', typeof link, cont.trim(), title.trim());
 
       let newTitle = title.trim();
       let newCont = cont.trim();
@@ -124,14 +136,13 @@ const MarkdownEditor: React.FC<{
         newCont = ' ';
       }
 
-      console.log('>>>> ', link.trim(), newCont, newTitle);
-
       setIsSaving(true);
+
       try {
-        const pathName =
-          documentId === '0'
-            ? `/${folder}/${new Date().getTime().toString()}`
-            : `/${folder}/${documentId}`;
+        const pathName = `/${folder}/${docName}`;
+
+        // const pathName =
+        //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
 
         const escapedContent = escapeMD(newCont);
         console.log('escapedContent ', escapedContent);
@@ -146,7 +157,12 @@ const MarkdownEditor: React.FC<{
           tags,
           collabs,
         );
-        afterSave();
+
+        setDocName(dn);
+
+        if (exit) {
+          afterSave();
+        }
         return;
       } catch (error) {
         console.error('Error saving document:', error);
@@ -155,8 +171,7 @@ const MarkdownEditor: React.FC<{
       }
     }
     console.log('not saving !');
-    afterSave();
-    return;
+    // afterSave();
   };
 
   const handleClose = async () => {
@@ -167,13 +182,41 @@ const MarkdownEditor: React.FC<{
     setIsSaving(false);
   };
 
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      handleSave();
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        handleSave();
+      }
+    };
+
+    const saveInterval = setInterval(() => {
+      console.log('auto-saving!');
+      handleSave(false);
+    }, 30000);
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(saveInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [cont, title, link, priority, project, tags, collabs]);
+
   return (
-    <div id="main" className="w-full h-screen flex">
+    <div id="main" className="w-full my-4 flex flex-grow  overflow-y-auto">
       {/* editor  */}
       <div
-        className="w-9/12 h-full p-4 my-4 relative
-       dark:bg-stone-700 rounded-md shadow-md 
-      border-stone-200 dark:border-stone-700">
+        className="w-9/12 p-4 relative mb-2
+       dark:bg-stone-700 rounded-md shadow-md flex flex-col flex-grow overflow-auto
+      bg-white border-stone-200 dark:border-stone-700">
         <input
           onChange={e => setTitle(e.target.value)}
           value={title}
