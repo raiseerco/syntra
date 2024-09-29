@@ -2,7 +2,7 @@
 
 import '../../../src/app/EditorStyle.css';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   escapeMD,
   preprocessMarkdown,
@@ -48,14 +48,10 @@ const MarkdownEditor: React.FC<{
 
   const { setBackBehavior, backBehavior } = useDAO();
 
-  const myFn = (e: any) => {
-    console.log('eee ');
-    // if (e.key === 'Escape') {
-    //   console.log('ESCAPE');
-    //   e.preventDefault();
-    //   setBackBehavior('none');
-    // }
-  };
+  const myFn = useCallback((e: any) => {
+    console.log('backBehavior ejecutado: ', e);
+    handleClose();
+  }, []);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -117,9 +113,12 @@ const MarkdownEditor: React.FC<{
     };
 
     fetchDocument();
-    setBackBehavior(myFn);
-    console.log('backBehavior ', backBehavior);
   }, [documentId, folder]);
+
+  useEffect(() => {
+    setBackBehavior(() => myFn);
+    console.log('backBehavior set to: ', typeof backBehavior);
+  }, []);
 
   const handleSave = async (exit: boolean = true) => {
     if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
@@ -145,7 +144,7 @@ const MarkdownEditor: React.FC<{
         //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
 
         const escapedContent = escapeMD(newCont);
-        console.log('escapedContent ', escapedContent);
+        // console.log('escapedContent ', escapedContent);
         // return;
         await upsertDocument(
           pathName,
@@ -180,6 +179,7 @@ const MarkdownEditor: React.FC<{
     setTitle('');
     setLink('');
     setIsSaving(false);
+    setBackBehavior(undefined);
   };
 
   useEffect(() => {
