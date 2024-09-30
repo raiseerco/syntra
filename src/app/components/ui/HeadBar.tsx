@@ -76,7 +76,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
                   <button
                     className="text-xl opacity-40"
                     onClick={() => backBehavior(1)}>
-                    ←j
+                    ←
                   </button>
                 )}
               </>
