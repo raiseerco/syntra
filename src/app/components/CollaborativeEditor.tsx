@@ -48,8 +48,10 @@ const MarkdownEditor: React.FC<{
 
   const { setBackBehavior, backBehavior } = useDAO();
 
+  // FIXME
   const myFn = useCallback((e: any) => {
-    console.log('backBehavior ejecutado: ', e);
+    // const { link, cont, title, pathName } = e;
+    // handleCloseFull(link, cont, title, pathName);
     handleClose();
   }, []);
 
@@ -115,6 +117,12 @@ const MarkdownEditor: React.FC<{
     fetchDocument();
   }, [documentId, folder]);
 
+  // useEffect(() => {
+  //   const pathName = `/${folder}/${docName}`;
+  //   setBackBehavior(() => myFn({ link, cont, title, pathName }));
+  //   console.log('backBehavior set to: ', typeof backBehavior);
+  // }, [link, cont, title, folder, documentId]);
+
   useEffect(() => {
     setBackBehavior(() => myFn);
     console.log('backBehavior set to: ', typeof backBehavior);
@@ -160,6 +168,12 @@ const MarkdownEditor: React.FC<{
         setDocName(dn);
 
         if (exit) {
+          setCont('');
+          setTitle('');
+          setLink('');
+          setIsSaving(false);
+          setBackBehavior(undefined);
+
           afterSave();
         }
         return;
@@ -174,13 +188,117 @@ const MarkdownEditor: React.FC<{
   };
 
   const handleClose = async () => {
+    console.log('aca', link, cont, title);
+    if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
+      console.log('saving! ', typeof link, cont.trim(), title.trim());
+
+      let newTitle = title.trim();
+      let newCont = cont.trim();
+
+      if (newTitle === '') {
+        newTitle = 'Untitled';
+      }
+
+      if (newCont.trim() === '') {
+        newCont = ' ';
+      }
+
+      setIsSaving(true);
+
+      try {
+        const pathName = `/${folder}/${docName}`;
+
+        // const pathName =
+        //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
+
+        const escapedContent = escapeMD(newCont);
+        // console.log('escapedContent ', escapedContent);
+        // return;
+        await upsertDocument(
+          pathName,
+          escapedContent,
+          newTitle,
+          link,
+          priority,
+          project,
+          tags,
+          collabs,
+        );
+
+        setDocName(dn);
+        setCont('');
+        setTitle('');
+        setLink('');
+        setIsSaving(false);
+        setBackBehavior(undefined);
+
+        afterSave();
+        return;
+      } catch (error) {
+        console.error('Error saving document:', error);
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
+    console.log('not saving !');
     afterSave();
-    setCont('');
-    setTitle('');
-    setLink('');
-    setIsSaving(false);
-    setBackBehavior(undefined);
   };
+
+  // const handleCloseFull = async (link, cont, title, pathName) => {
+  //   console.log('aca', link, cont, title);
+  //   if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
+  //     console.log('saving! ', typeof link, cont.trim(), title.trim());
+
+  //     let newTitle = title.trim();
+  //     let newCont = cont.trim();
+
+  //     if (newTitle === '') {
+  //       newTitle = 'Untitled';
+  //     }
+
+  //     if (newCont.trim() === '') {
+  //       newCont = ' ';
+  //     }
+
+  //     setIsSaving(true);
+
+  //     try {
+  //       // const pathName =
+  //       //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
+
+  //       const escapedContent = escapeMD(newCont);
+  //       // console.log('escapedContent ', escapedContent);
+  //       // return;
+  //       await upsertDocument(
+  //         pathName,
+  //         escapedContent,
+  //         newTitle,
+  //         link,
+  //         priority,
+  //         project,
+  //         tags,
+  //         collabs,
+  //       );
+
+  //       setDocName(dn);
+  //       setCont('');
+  //       setTitle('');
+  //       setLink('');
+  //       setIsSaving(false);
+  //       setBackBehavior(undefined);
+  //       afterSave();
+  //       return;
+  //     } catch (error) {
+  //       console.error('Error saving document:', error);
+  //     } finally {
+  //       setIsSaving(false);
+  //     }
+  //   }
+
+  //   console.log('not saving !');
+  //   afterSave();
+  // };
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {

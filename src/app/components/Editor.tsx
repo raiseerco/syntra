@@ -115,7 +115,7 @@ const Editor = ({
         prose-h3:text-xl 
         prose-h4:text-lg
         prose-h5:text-base "
-      className=" flex  flex-col flex-grow  overflow-y-auto px-1"
+      className=" flex  flex-col flex-grow overflow-y-auto"
       plugins={[
         imagePlugin({
           imageUploadHandler: () => {
