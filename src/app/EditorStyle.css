@@ -741,7 +741,7 @@
   width: 100%;
   /* color: var(--baseTextContrast); */
 
-  padding-top: var(--spacing-3);
+  padding-top: var(--spacing-1);
 }
 
 ._contentEditable_uazmk_379:focus {
@@ -1700,7 +1700,7 @@
   overflow: hidden;
   position: absolute;
   top: 0;
-  padding: var(--spacing-3);
+  /* padding: var(--spacing-3); */
   text-overflow: ellipsis;
   -webkit-user-select: none;
   -moz-user-select: none;

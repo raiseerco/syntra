@@ -226,7 +226,6 @@ export default function DaoPage({ params }: { params: { id: string } }) {
       );
 
       setProjects(nonZeroId);
-
       setSelectedProject(ALL_DOCS_FOLDER);
       setIsEditorOpen(false);
     } catch (error) {
@@ -248,7 +247,10 @@ export default function DaoPage({ params }: { params: { id: string } }) {
         const docs = await getDocument('DAOS', idDao);
         setDaoLinks(docs?.links as DaoLink[]);
         setDaoSettings(docs?.settings as DaoLink[]);
-        setDaoTemplates(docs?.templates as DaoLink[]);
+        setDaoTemplates(
+          docs?.templates.filter((x: any) => x.enabled === true) as DaoLink[],
+        );
+        console.log(docs?.templates);
         setCalendarId(docs?.settings[0].google_calendar_id);
         setLogo(docs?.settings[0].logoSVG || '');
         setColor(docs?.settings[0].color || 'stone-100');
@@ -520,7 +522,9 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                         </button>
 
                         <DropdownMenu>
-                          <DropdownMenuTrigger className="outline-none" asChild>
+                          <DropdownMenuTrigger
+                            className="outline-none "
+                            asChild>
                             <button
                               className="text-xs rounded-md px-3 py-2
                              dark:hover:bg-stone-700
@@ -530,26 +534,27 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
-                            className="text-xs bg-stone-100 dark:bg-stone-700 p-3 outline-none shadow rounded-md"
+                            className="text-xs bg-stone-100 dark:bg-stone-700 p-3 outline-none z-50 relative   shadow rounded-md"
                             align="end">
                             <DropdownMenuItem
-                              className="hover:bg-stone-200
+                              className="hover:bg-stone-200 
                                hover:dark:bg-stone-600 outline-none 
                                cursor-pointer rounded-md px-3 py-2">
                               Coming Soon™
                             </DropdownMenuItem>
 
                             {daoTemplates.map((i: any, k: number) => (
-                              <DropdownMenuItem
+                              <button
                                 key={k}
                                 onClick={() => {
                                   setDocumentId('0');
                                   setDaoTemplate(i);
                                   setIsEditorOpen(true);
                                 }}
-                                className="hover:bg-stone-200 hover:dark:bg-stone-600 outline-none cursor-pointer rounded-md px-3 py-2">
+                                className="hover:bg-stone-200  hover:dark:bg-stone-600  
+                              outline-none cursor-pointer rounded-md px-3 py-2">
                                 {i.name}
-                              </DropdownMenuItem>
+                              </button>
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { BlankLink } from '../BlankLink';
+import Loader from './Loader';
 import { LoginButton } from './LoginButton';
 import { useAuth } from '../contexts/AuthContext';
 import { useDAO } from '../contexts/DAOContext';
@@ -30,6 +31,8 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
     setColorDark,
     backBehavior,
     setBackBehavior,
+    showLoader,
+    // setShowLoader,
   } = useDAO();
   const { theme, setTheme, systemTheme } = useTheme();
 
@@ -63,25 +66,29 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
       }}>
       <div className=" containers flex items-center w-full justify-between px-4 md:px-6">
         <>
-          <span className="flex gap-2 dark:text-stone-300 items-center">
-            {id?.length > 0 && (
-              <>
-                {typeof backBehavior === 'undefined' ? (
-                  <BlankLink
-                    className="text-xl opacity-40"
-                    href={'/dao-manager'}>
-                    ←
-                  </BlankLink>
-                ) : (
-                  <button
-                    className="text-xl opacity-40"
-                    onClick={() => backBehavior(1)}>
-                    ←
-                  </button>
-                )}
-              </>
-            )}
-          </span>
+          {showLoader ? (
+            <Loader fullWidth={false} />
+          ) : (
+            <span className="flex gap-2 dark:text-stone-300 items-center">
+              {id?.length > 0 && (
+                <>
+                  {typeof backBehavior === 'undefined' ? (
+                    <BlankLink
+                      className="text-xl opacity-40"
+                      href={'/dao-manager'}>
+                      ←
+                    </BlankLink>
+                  ) : (
+                    <button
+                      className="text-xl opacity-40"
+                      onClick={() => backBehavior(1)}>
+                      ←
+                    </button>
+                  )}
+                </>
+              )}
+            </span>
+          )}
         </>
         <div className="w-full text-center flex justify-center text-lg">
           {logo === '' ? (
@@ -89,10 +96,11 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
             // id.charAt(0).toUpperCase() + id.slice(1).toLowerCase()
             ''
           ) : (
-            <div dangerouslySetInnerHTML={{ __html: logo }} />
+            <>
+              <div dangerouslySetInnerHTML={{ __html: logo }} />
+            </>
           )}
         </div>
-
         {/* <WorldIDVerifier /> */}
         <>
           <LoginButton />
