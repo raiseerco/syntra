@@ -57,8 +57,11 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   // logo,
   // color,
   // colorDark,
-  const { setLogo, setColor, setColorDark, setName, name } = useDAO();
+  const { setLogo, setColor, setColorDark, setName, name, setShowBack } =
+    useDAO();
   setName(idDao);
+  setShowBack(true);
+
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any>([]);
   const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
