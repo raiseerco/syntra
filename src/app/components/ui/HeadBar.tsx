@@ -33,6 +33,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
     setBackBehavior,
     showLoader,
     // setShowLoader,
+    showBack,
   } = useDAO();
   const { theme, setTheme, systemTheme } = useTheme();
 
@@ -72,7 +73,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
             <span className="flex gap-2 dark:text-stone-300 items-center">
               {id?.length > 0 && (
                 <>
-                  {typeof backBehavior === 'undefined' ? (
+                  {/* {typeof backBehavior === 'undefined' ? (
                     <BlankLink
                       className="text-xl opacity-40"
                       href={'/dao-manager'}>
@@ -84,6 +85,15 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
                       onClick={() => backBehavior(1)}>
                       ←
                     </button>
+                  )}
+                   */}
+
+                  {showBack && (
+                    <BlankLink
+                      className="text-xl opacity-40"
+                      href={'/dao-manager'}>
+                      ←
+                    </BlankLink>
                   )}
                 </>
               )}

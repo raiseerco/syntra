@@ -46,14 +46,8 @@ const MarkdownEditor: React.FC<{
   const [docName, setDocName] = useState(documentId === '0' ? dn : documentId);
   const ref = React.useRef<MDXEditorMethods>(null);
 
-  const { setBackBehavior, backBehavior } = useDAO();
-
-  // FIXME
-  const myFn = useCallback((e: any) => {
-    // const { link, cont, title, pathName } = e;
-    // handleCloseFull(link, cont, title, pathName);
-    handleClose();
-  }, []);
+  const { setShowBack } = useDAO();
+  setShowBack(false);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -123,12 +117,10 @@ const MarkdownEditor: React.FC<{
   //   console.log('backBehavior set to: ', typeof backBehavior);
   // }, [link, cont, title, folder, documentId]);
 
-  useEffect(() => {
-    setBackBehavior(() => myFn);
-    console.log('backBehavior set to: ', typeof backBehavior);
-  }, []);
-
-  const handleSave = async (exit: boolean = true) => {
+  const handleSave = async () => {
+    if (!link || !cont || !title) {
+      return;
+    }
     if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
       console.log('saving! ', typeof link, cont.trim(), title.trim());
 
@@ -151,6 +143,7 @@ const MarkdownEditor: React.FC<{
         // const pathName =
         //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
 
+        // FIXME
         const escapedContent = escapeMD(newCont);
         // console.log('escapedContent ', escapedContent);
         // return;
@@ -166,17 +159,6 @@ const MarkdownEditor: React.FC<{
         );
 
         setDocName(dn);
-
-        if (exit) {
-          setCont('');
-          setTitle('');
-          setLink('');
-          setIsSaving(false);
-          setBackBehavior(undefined);
-
-          afterSave();
-        }
-        return;
       } catch (error) {
         console.error('Error saving document:', error);
       } finally {
@@ -184,121 +166,24 @@ const MarkdownEditor: React.FC<{
       }
     }
     console.log('not saving !');
-    // afterSave();
   };
 
   const handleClose = async () => {
     console.log('aca', link, cont, title);
-    if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
-      console.log('saving! ', typeof link, cont.trim(), title.trim());
-
-      let newTitle = title.trim();
-      let newCont = cont.trim();
-
-      if (newTitle === '') {
-        newTitle = 'Untitled';
-      }
-
-      if (newCont.trim() === '') {
-        newCont = ' ';
-      }
-
-      setIsSaving(true);
-
-      try {
-        const pathName = `/${folder}/${docName}`;
-
-        // const pathName =
-        //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
-
-        const escapedContent = escapeMD(newCont);
-        // console.log('escapedContent ', escapedContent);
-        // return;
-        await upsertDocument(
-          pathName,
-          escapedContent,
-          newTitle,
-          link,
-          priority,
-          project,
-          tags,
-          collabs,
-        );
-
-        setDocName(dn);
-        setCont('');
-        setTitle('');
-        setLink('');
-        setIsSaving(false);
-        setBackBehavior(undefined);
-
-        afterSave();
-        return;
-      } catch (error) {
-        console.error('Error saving document:', error);
-      } finally {
-        setIsSaving(false);
-      }
+    try {
+      await handleSave();
+      setCont('');
+      setTitle('');
+      setLink('');
+      setIsSaving(false);
+      afterSave();
+      setShowBack(false);
+    } catch (error) {
+      console.error('Error saving document:', error);
+    } finally {
+      setIsSaving(false);
     }
-
-    console.log('not saving !');
-    afterSave();
   };
-
-  // const handleCloseFull = async (link, cont, title, pathName) => {
-  //   console.log('aca', link, cont, title);
-  //   if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
-  //     console.log('saving! ', typeof link, cont.trim(), title.trim());
-
-  //     let newTitle = title.trim();
-  //     let newCont = cont.trim();
-
-  //     if (newTitle === '') {
-  //       newTitle = 'Untitled';
-  //     }
-
-  //     if (newCont.trim() === '') {
-  //       newCont = ' ';
-  //     }
-
-  //     setIsSaving(true);
-
-  //     try {
-  //       // const pathName =
-  //       //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
-
-  //       const escapedContent = escapeMD(newCont);
-  //       // console.log('escapedContent ', escapedContent);
-  //       // return;
-  //       await upsertDocument(
-  //         pathName,
-  //         escapedContent,
-  //         newTitle,
-  //         link,
-  //         priority,
-  //         project,
-  //         tags,
-  //         collabs,
-  //       );
-
-  //       setDocName(dn);
-  //       setCont('');
-  //       setTitle('');
-  //       setLink('');
-  //       setIsSaving(false);
-  //       setBackBehavior(undefined);
-  //       afterSave();
-  //       return;
-  //     } catch (error) {
-  //       console.error('Error saving document:', error);
-  //     } finally {
-  //       setIsSaving(false);
-  //     }
-  //   }
-
-  //   console.log('not saving !');
-  //   afterSave();
-  // };
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -315,7 +200,7 @@ const MarkdownEditor: React.FC<{
 
     const saveInterval = setInterval(() => {
       console.log('auto-saving!');
-      handleSave(false);
+      handleSave();
     }, 30000);
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -331,6 +216,14 @@ const MarkdownEditor: React.FC<{
   return (
     <div id="main" className="w-full my-4 flex flex-grow  overflow-y-auto">
       {/* editor  */}
+      {/* HACK button to close editor */}
+      <button
+        style={{ top: '10px' }}
+        className="text-xl px-2 absolute z-40 opacity-40"
+        onClick={handleClose}>
+        ←
+      </button>
+
       <div
         className="w-9/12 p-4 relative mb-2
        dark:bg-stone-700 rounded-md shadow-md flex flex-col flex-grow overflow-auto
@@ -357,9 +250,6 @@ const MarkdownEditor: React.FC<{
       {/* metadata  */}
       <MetadataBar
         documentId={documentId}
-        isSaving={isSaving}
-        handleSave={handleSave}
-        handleClose={handleClose}
         link={link}
         setLink={setLink}
         projectName={projectName}
