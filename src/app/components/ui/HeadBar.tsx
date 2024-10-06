@@ -29,10 +29,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
     setColor,
     colorDark,
     setColorDark,
-    backBehavior,
-    setBackBehavior,
     showLoader,
-    // setShowLoader,
     showBack,
   } = useDAO();
   const { theme, setTheme, systemTheme } = useTheme();
@@ -43,10 +40,6 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
     }
     setAddress(authenticated);
   }, [authenticated, user]);
-
-  useEffect(() => {
-    console.log('backBehavior changed', backBehavior);
-  }, [backBehavior]);
 
   const isDarkMode = systemTheme !== 'light';
 
@@ -71,31 +64,10 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
             <Loader fullWidth={false} />
           ) : (
             <span className="flex gap-2 dark:text-stone-300 items-center">
-              {id?.length > 0 && (
-                <>
-                  {/* {typeof backBehavior === 'undefined' ? (
-                    <BlankLink
-                      className="text-xl opacity-40"
-                      href={'/dao-manager'}>
-                      ←
-                    </BlankLink>
-                  ) : (
-                    <button
-                      className="text-xl opacity-40"
-                      onClick={() => backBehavior(1)}>
-                      ←
-                    </button>
-                  )}
-                   */}
-
-                  {showBack && (
-                    <BlankLink
-                      className="text-xl opacity-40"
-                      href={'/dao-manager'}>
-                      ←
-                    </BlankLink>
-                  )}
-                </>
+              {id?.length > 0 && showBack && (
+                <BlankLink className="text-xl opacity-40" href={'/dao-manager'}>
+                  ←
+                </BlankLink>
               )}
             </span>
           )}

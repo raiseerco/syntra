@@ -11,8 +11,6 @@ interface DAOContextProps {
   setColorDark: (color: string) => void;
   name: string;
   setName: (name: string) => void;
-  backBehavior: ((e: any) => void) | undefined;
-  setBackBehavior: (backBehavior: ((e: any) => void) | undefined) => void;
   showLoader: boolean;
   setShowLoader: (fullWidth: boolean) => void;
   showBack: boolean;
@@ -36,9 +34,6 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
   const [name, setName] = useState<string>('');
   const [showLoader, setShowLoader] = useState<boolean>(false);
   const [showBack, setShowBack] = useState<boolean>(false);
-  const [backBehavior, setBackBehavior] = useState<
-    ((e: any) => void) | undefined
-  >(undefined);
 
   return (
     <DAOContext.Provider
@@ -51,8 +46,6 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
         setColorDark,
         name,
         setName,
-        backBehavior,
-        setBackBehavior,
         showLoader,
         setShowLoader,
         showBack,
