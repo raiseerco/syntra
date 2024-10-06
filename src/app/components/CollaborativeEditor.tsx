@@ -2,7 +2,7 @@
 
 import '../../../src/app/EditorStyle.css';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   escapeMD,
   preprocessMarkdown,
@@ -49,6 +49,10 @@ const MarkdownEditor: React.FC<{
   const { setShowBack } = useDAO();
   setShowBack(false);
 
+  const isAlreadyEscaped = (text: string) => {
+    return /\\[\\`*_{}\[\]()#+\-.!]/.test(text);
+  };
+
   useEffect(() => {
     const fetchDocument = async () => {
       try {
@@ -63,7 +67,7 @@ const MarkdownEditor: React.FC<{
           setTags(data.tags || []);
           setCollabs(data.collabs || []);
           setCont(data.content);
-          console.log('unescaped!', data.content);
+          console.log('loaded unescaped!', data.content);
           ref.current?.setMarkdown(
             data.content.replace(/\\([\\`*_{}\[\]()#+\-.!])/g, '$1'),
           );
@@ -85,6 +89,7 @@ const MarkdownEditor: React.FC<{
           return;
         }
 
+        // with template
         if (documentId === '0' && typeof daoTemplate?.id !== 'undefined') {
           setTitle(`[${daoTemplate.name}]`);
           setLink('');
@@ -111,67 +116,95 @@ const MarkdownEditor: React.FC<{
     fetchDocument();
   }, [documentId, folder]);
 
-  // useEffect(() => {
-  //   const pathName = `/${folder}/${docName}`;
-  //   setBackBehavior(() => myFn({ link, cont, title, pathName }));
-  //   console.log('backBehavior set to: ', typeof backBehavior);
-  // }, [link, cont, title, folder, documentId]);
+  const handleSave = async (donde: string) => {
+    console.log('donde ', donde);
+    console.log('link, cont, title ', link, cont, title);
 
-  const handleSave = async () => {
-    if (!link || !cont || !title) {
+    let save = false;
+
+    if (!link || link.trim() !== '') {
+      console.log('link:', link);
+      save = true;
+    }
+
+    if (!cont || cont.trim() !== '') {
+      console.log('cont:', cont);
+      save = true;
+    }
+    if (!title || title.trim() !== '') {
+      console.log('title:', title);
+      save = true;
+    }
+
+    const save2 = ![link, cont, title].every(
+      item => item || item.trim() !== '',
+    );
+
+    console.log('donde,save,save2 ', donde, save, save2);
+
+    if (!save) {
+      console.log('not saving: no link, cont, nor title');
       return;
     }
-    if (link.trim() !== '' || cont.trim() !== '' || title.trim() !== '') {
-      console.log('saving! ', typeof link, cont.trim(), title.trim());
+    console.log('saving! ', typeof link, cont.trim(), title.trim());
 
-      let newTitle = title.trim();
-      let newCont = cont.trim();
+    let newTitle = title.trim();
+    let newCont = cont.trim();
 
-      if (newTitle === '') {
-        newTitle = 'Untitled';
-      }
-
-      if (newCont.trim() === '') {
-        newCont = ' ';
-      }
-
-      setIsSaving(true);
-
-      try {
-        const pathName = `/${folder}/${docName}`;
-
-        // const pathName =
-        //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
-
-        // FIXME
-        const escapedContent = escapeMD(newCont);
-        // console.log('escapedContent ', escapedContent);
-        // return;
-        await upsertDocument(
-          pathName,
-          escapedContent,
-          newTitle,
-          link,
-          priority,
-          project,
-          tags,
-          collabs,
-        );
-
-        setDocName(dn);
-      } catch (error) {
-        console.error('Error saving document:', error);
-      } finally {
-        setIsSaving(false);
-      }
+    if (newTitle === '') {
+      newTitle = 'Untitled';
     }
-    console.log('not saving !');
+
+    if (newCont.trim() === '') {
+      newCont = ' ';
+    }
+
+    setIsSaving(true);
+
+    try {
+      const pathName = `/${folder}/${docName}`;
+
+      // const pathName =
+      //   documentId === '0' ? `/${folder}/${dn}` : `/${folder}/${documentId}`;
+
+      // FIXME
+      // const escapedContent = escapeMD(newCont);
+      // let newCont = cont.trim();
+
+      let escapedContent;
+      // const escapedContent = escapeMD(newCont);
+
+      // Asegúrate de que el contenido no esté escapado antes de aplicar escapeMD
+      if (!isAlreadyEscaped(newCont)) {
+        escapedContent = escapeMD(newCont);
+      } else {
+        escapedContent = newCont;
+      }
+
+      // console.log('escapedContent ', escapedContent);
+      // return;
+      await upsertDocument(
+        pathName,
+        escapedContent,
+        newTitle,
+        link,
+        priority,
+        project,
+        tags,
+        collabs,
+      );
+
+      setDocName(dn);
+    } catch (error) {
+      console.error('Error saving document:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleClose = async () => {
-    console.log('aca', link, cont, title);
     try {
-      await handleSave();
+      await handleSave('handleclose');
       setCont('');
       setTitle('');
       setLink('');
@@ -187,20 +220,18 @@ const MarkdownEditor: React.FC<{
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      handleSave();
+      handleClose();
       e.preventDefault();
-      e.returnValue = '';
     };
 
-    const handleVisibilityChange = () => {
+    const handleVisibilityChange = async () => {
       if (document.visibilityState === 'hidden') {
-        handleSave();
+        await handleSave('hiddensave');
       }
     };
 
-    const saveInterval = setInterval(() => {
-      console.log('auto-saving!');
-      handleSave();
+    const saveInterval = setInterval(async () => {
+      await handleSave('autosave');
     }, 30000);
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -241,7 +272,10 @@ const MarkdownEditor: React.FC<{
         />
 
         <ForwardRefEditor
-          onChange={(e: any) => setCont(e)}
+          onChange={(e: any) => {
+            console.log('onchange ', e);
+            setCont(e);
+          }}
           markdown={cont}
           ref={ref}
         />
