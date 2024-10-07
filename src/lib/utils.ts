@@ -2,7 +2,6 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 // import { parseUnits, formatUnits } from "viem";
 import { useRef, useCallback, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -340,38 +339,92 @@ export function escapeMD(text: string) {
   return formattedText;
 }
 
-// export const preprocessMarkdown = (content: string): string => {
-//   // Regex para los bloques de código
-//   const codeBlockRegex = /```[\s\S]*?```/g;
-//   const codeBlocks: string[] = [];
+export function getTimeUntil(targetEpoch: number): string {
+  const currentTime = Math.floor(Date.now() / 1000);
 
-//   // Reemplazar los bloques de código temporalmente
-//   let processedContent = content.replace(codeBlockRegex, (match) => {
-//     codeBlocks.push(match);
-//     return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
-//   });
+  const timeDifference = targetEpoch - currentTime;
 
-//   // Asegurarnos de que las líneas con encabezados estén bien formateadas
-//   processedContent = processedContent.replace(
-//     /(#+\s[^\n]+)(?!\n\n)/g,
-//     "$1\n\n"
-//   );
+  if (timeDifference <= 0) {
+    const timePassed = Math.abs(timeDifference);
+    const daysPassed = Math.floor(timePassed / (60 * 60 * 24));
+    const hoursPassed = Math.floor((timePassed % (60 * 60 * 24)) / (60 * 60));
+    const minutesPassed = Math.floor((timePassed % (60 * 60)) / 60);
 
-//   // Reemplazar una sola nueva línea con dos nuevas líneas, excepto dentro de bloques de código
-//   processedContent = processedContent.replace(/(?<!\n)\n(?!\n)/g, "\n\n");
+    let result = 'Finished ';
 
-//   // Evitar añadir saltos de línea dentro de cursivas, negritas o enlaces.
-//   // Reemplazo solo en líneas sin formato de estilos
-//   processedContent = processedContent.replace(
-//     /(^|\n)([^_*[\n]+)(?!\n\n)/g,
-//     "$1$2\n\n"
-//   );
+    if (daysPassed > 0) {
+      result += `${daysPassed}d${daysPassed !== 1 ? '' : ''} `;
+    }
 
-//   // Restaurar los bloques de código
-//   processedContent = processedContent.replace(
-//     /__CODE_BLOCK_(\d+)__/g,
-//     (_, index) => codeBlocks[parseInt(index)]
-//   );
+    if (hoursPassed > 0) {
+      result += `${hoursPassed}h${hoursPassed !== 1 ? '' : ''} `;
+    }
 
-//   return processedContent;
-// };
+    result += `${minutesPassed}m${minutesPassed !== 1 ? '' : ''} ago`;
+
+    return result;
+  }
+
+  const days = Math.floor(timeDifference / (60 * 60 * 24));
+  const hours = Math.floor((timeDifference % (60 * 60 * 24)) / (60 * 60));
+  const minutes = Math.floor((timeDifference % (60 * 60)) / 60);
+
+  let result = 'Vote finishes in ';
+
+  if (days > 0) {
+    result += `${days} d${days !== 1 ? '' : ''} `;
+  }
+
+  if (hours > 0) {
+    result += `${hours} h${hours !== 1 ? '' : ''} `;
+  }
+
+  result += `${minutes} m${minutes !== 1 ? '' : ''}`;
+
+  return result;
+}
+
+export function getTimeStart(targetEpoch: number): string {
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  const timeDifference = targetEpoch - currentTime;
+
+  if (timeDifference <= 0) {
+    const timePassed = Math.abs(timeDifference);
+    const daysPassed = Math.floor(timePassed / (60 * 60 * 24));
+    const hoursPassed = Math.floor((timePassed % (60 * 60 * 24)) / (60 * 60));
+    const minutesPassed = Math.floor((timePassed % (60 * 60)) / 60);
+
+    let result = 'Started ';
+
+    if (daysPassed > 0) {
+      result += `${daysPassed}d${daysPassed !== 1 ? '' : ''} `;
+    }
+
+    if (hoursPassed > 0) {
+      result += `${hoursPassed}h${hoursPassed !== 1 ? '' : ''} `;
+    }
+
+    result += `${minutesPassed}m${minutesPassed !== 1 ? '' : ''} ago`;
+
+    return result;
+  }
+
+  const days = Math.floor(timeDifference / (60 * 60 * 24));
+  const hours = Math.floor((timeDifference % (60 * 60 * 24)) / (60 * 60));
+  const minutes = Math.floor((timeDifference % (60 * 60)) / 60);
+
+  let result = 'Vote finishes in ';
+
+  if (days > 0) {
+    result += `${days}d${days !== 1 ? '' : ''} `;
+  }
+
+  if (hours > 0) {
+    result += `${hours}h${hours !== 1 ? '' : ''} `;
+  }
+
+  result += `${minutes}m${minutes !== 1 ? '' : ''}`;
+
+  return result;
+}

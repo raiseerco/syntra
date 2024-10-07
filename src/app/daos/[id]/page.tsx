@@ -22,6 +22,7 @@ import { DraftList } from '../../components/DraftList';
 import Loader from '../../components/ui/Loader';
 import PlatformLayout from '../../layouts/platformLayout';
 import { ProjectList } from '../../components/ProjectList';
+import { ProposalList } from '../../components/ProposalList';
 import dynamic from 'next/dynamic';
 import { getCalendar } from '../../../lib/calendar';
 import { getDocument } from '../../../lib/firestore';
@@ -38,8 +39,9 @@ const CollaborativeEditor = dynamic(
 export default function DaoPage({ params }: { params: { id: string } }) {
   const { id: idDao } = params;
   // const par = useParams();
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isDraftsOpen, setIsDraftsOpen] = useState(true);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isProposalsOpen, setIsProposalsOpen] = useState(false);
   const [daoTemplate, setDaoTemplate] = useState<any>();
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -57,8 +59,16 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   // logo,
   // color,
   // colorDark,
-  const { setLogo, setColor, setColorDark, setName, name, setShowBack } =
-    useDAO();
+  const {
+    setLogo,
+    setColor,
+    setColorDark,
+    setName,
+    name,
+    setShowBack,
+    daoAddress,
+    setDaoAddress,
+  } = useDAO();
   setName(idDao);
   setShowBack(true);
 
@@ -258,6 +268,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
         setLogo(docs?.settings[0].logoSVG || '');
         setColor(docs?.settings[0].color || 'stone-100');
         setColorDark(docs?.settings[0].colorDark || 'stone-900');
+        setDaoAddress(docs?.settings[0].daoAddress || ''); // FIXME THIS WILL BE BROKEN WITH TALLY
         setLoading(false);
       } catch (err) {
         setError('Error fetching documents ');
@@ -331,6 +342,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   setIsResourcesOpen(false);
                   setIsCalendarOpen(false);
                   setIsActivityOpen(false);
+                  setIsProposalsOpen(false);
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
                   ${isDraftsOpen && ' bg-stone-100 dark:bg-stone-700 '}
@@ -341,10 +353,11 @@ export default function DaoPage({ params }: { params: { id: string } }) {
               {/* resources  */}
               <button
                 onClick={() => {
-                  setIsResourcesOpen(!isResourcesOpen);
+                  setIsResourcesOpen(true);
                   setIsCalendarOpen(false);
                   setIsActivityOpen(false);
                   setIsDraftsOpen(false);
+                  setIsProposalsOpen(false);
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
                   ${isResourcesOpen && ' bg-stone-100 dark:bg-stone-700 '}
@@ -355,10 +368,11 @@ export default function DaoPage({ params }: { params: { id: string } }) {
               {/* calendar  */}
               <button
                 onClick={() => {
-                  setIsCalendarOpen(!isCalendarOpen);
+                  setIsCalendarOpen(true);
                   setIsDraftsOpen(false);
                   setIsResourcesOpen(false);
                   setIsActivityOpen(false);
+                  setIsProposalsOpen(false);
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
                       ${isCalendarOpen && ' bg-stone-100 dark:bg-stone-700 '}
@@ -369,15 +383,31 @@ export default function DaoPage({ params }: { params: { id: string } }) {
               {/* activity feed  */}
               <button
                 onClick={() => {
-                  setIsActivityOpen(!isActivityOpen);
+                  setIsActivityOpen(true);
                   setIsCalendarOpen(false);
                   setIsResourcesOpen(false);
                   setIsDraftsOpen(false);
+                  setIsProposalsOpen(false);
                 }}
                 className={`flex flex-col rounded-lg px-3 py-2  outline-none
                     ${isActivityOpen && ' bg-stone-100 dark:bg-stone-700 '}
                   text-stone-600 dark:text-stone-200 text-sm`}>
                 Activity feed
+              </button>
+
+              {/* proposals  */}
+              <button
+                onClick={() => {
+                  setIsActivityOpen(false);
+                  setIsCalendarOpen(false);
+                  setIsResourcesOpen(false);
+                  setIsDraftsOpen(false);
+                  setIsProposalsOpen(true);
+                }}
+                className={`flex flex-col rounded-lg px-3 py-2  outline-none
+                    ${isProposalsOpen && ' bg-stone-100 dark:bg-stone-700 '}
+                  text-stone-600 dark:text-stone-200 text-sm`}>
+                Proposals
               </button>
 
               {/* dao settings */}
@@ -596,6 +626,17 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   `}>
                 <div className=" w-full">
                   <DaoLinks arrayLinks={daoLinks} />
+                </div>
+              </div>
+
+              {/* proposals  */}
+              <div
+                className={` rounded-lg  
+                  flex flex-col flex-grow overflow-auto h-full
+                  transition-all duration-300 ease-in-out
+                ${isProposalsOpen ? 'max-h-full' : 'max-h-0'}  `}>
+                <div className="pb-2 h-full">
+                  <ProposalList daoAddress={daoAddress} />
                 </div>
               </div>
 

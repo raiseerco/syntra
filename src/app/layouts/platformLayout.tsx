@@ -78,7 +78,7 @@ export default function PlatformLayout({
         <div className="  ">
           <HeadBar />
           {/* content screen */}
-          <div className="flex min-h-screenss  h-screen">
+          <div className="flex h-screen">
             {/* main content */}
             <main className="ml-44 mt-12 w-full flex flex-grow overflow-auto ">
               {/* if not authenticated, nag screen */}
