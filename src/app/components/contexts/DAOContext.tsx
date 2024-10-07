@@ -15,6 +15,8 @@ interface DAOContextProps {
   setShowLoader: (fullWidth: boolean) => void;
   showBack: boolean;
   setShowBack: (showBack: boolean) => void;
+  daoAddress: string;
+  setDaoAddress: (daoAddress: string) => void;
 }
 
 const DAOContext = createContext<DAOContextProps | undefined>(undefined);
@@ -34,6 +36,7 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
   const [name, setName] = useState<string>('');
   const [showLoader, setShowLoader] = useState<boolean>(false);
   const [showBack, setShowBack] = useState<boolean>(false);
+  const [daoAddress, setDaoAddress] = useState<string>('');
 
   return (
     <DAOContext.Provider
@@ -50,6 +53,8 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
         setShowLoader,
         showBack,
         setShowBack,
+        daoAddress,
+        setDaoAddress,
       }}>
       {children}
     </DAOContext.Provider>

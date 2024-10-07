@@ -8,7 +8,6 @@ import { Button } from './Button';
 import Chip from './Chip';
 import Link from 'next/link';
 import { shortAddress } from '../../../lib/utils';
-import { signOut } from 'firebase/auth';
 import { trackEvent } from '../../../lib/mixpanel';
 import { useAuth } from '../contexts/AuthContext';
 import { useDAO } from '../contexts/DAOContext';
@@ -20,7 +19,15 @@ export const LoginButton: React.FC = () => {
   const { login, logout, user, authenticated } = usePrivy();
   const [showMenu, setShowMenu] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const { logo, color, setLogo, setColor, colorDark, setColorDark } = useDAO();
+  const {
+    logo,
+    color,
+    setLogo,
+    setColor,
+    colorDark,
+    setColorDark,
+    daoAddress,
+  } = useDAO();
   const router = useRouter();
 
   const handleLogin = () => {
