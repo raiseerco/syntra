@@ -13,7 +13,6 @@ import { fetchAllDocuments, upsertDocument } from '../../../lib/utils';
 import { useEffect, useState } from 'react';
 
 import { ALL_DOCS_FOLDER } from '../../../lib/constants';
-import ActivityFeed from '../../components/ActivityFeed';
 import ArbitrumAnn from '../../components/ArbitrumAnn';
 import DaoEvent from '../../components/DaoEvents';
 import { DaoLink } from '../../../types/DaoLink';
@@ -39,13 +38,13 @@ const CollaborativeEditor = dynamic(
 export default function DaoPage({ params }: { params: { id: string } }) {
   const { id: idDao } = params;
   // const par = useParams();
-  const [isDraftsOpen, setIsDraftsOpen] = useState(true);
+  const [isProposalsOpen, setIsProposalsOpen] = useState(true);
+  const [isDraftsOpen, setIsDraftsOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [isProposalsOpen, setIsProposalsOpen] = useState(false);
   const [daoTemplate, setDaoTemplate] = useState<any>();
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isActivityOpen, setIsActivityOpen] = useState(false);
+  const [isDiscussionsOpen, setIsDiscussionsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [template, setTemplate] = useState('');
 
@@ -329,19 +328,34 @@ export default function DaoPage({ params }: { params: { id: string } }) {
       <div className="flex flex-col flex-grow overflow-auto w-full">
         {!isEditorOpen ? (
           <div className="flex flex-col flex-grow overflow-auto w-full px-5">
-            {' '}
             {/* dashboard  */}
+
             {/* tab buttons */}
             <div
               id="divButtons"
               className="flex mb-3 mt-6 flex-col sm:flex-row w-full gap-4 px-1 ">
+              {/* proposals  */}
+              <button
+                onClick={() => {
+                  setIsDiscussionsOpen(false);
+                  setIsCalendarOpen(false);
+                  setIsResourcesOpen(false);
+                  setIsDraftsOpen(false);
+                  setIsProposalsOpen(true);
+                }}
+                className={`flex flex-col rounded-lg px-3 py-2  outline-none
+                    ${isProposalsOpen && ' bg-stone-100 dark:bg-stone-700 '}
+                  text-stone-600 dark:text-stone-200 text-sm`}>
+                Proposals
+              </button>
+
               {/* drafts  */}
               <button
                 onClick={() => {
                   setIsDraftsOpen(true);
                   setIsResourcesOpen(false);
                   setIsCalendarOpen(false);
-                  setIsActivityOpen(false);
+                  setIsDiscussionsOpen(false);
                   setIsProposalsOpen(false);
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
@@ -355,7 +369,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                 onClick={() => {
                   setIsResourcesOpen(true);
                   setIsCalendarOpen(false);
-                  setIsActivityOpen(false);
+                  setIsDiscussionsOpen(false);
                   setIsDraftsOpen(false);
                   setIsProposalsOpen(false);
                 }}
@@ -371,7 +385,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   setIsCalendarOpen(true);
                   setIsDraftsOpen(false);
                   setIsResourcesOpen(false);
-                  setIsActivityOpen(false);
+                  setIsDiscussionsOpen(false);
                   setIsProposalsOpen(false);
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
@@ -380,34 +394,19 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                 Calendar
               </button>
 
-              {/* activity feed  */}
+              {/* Discussions */}
               <button
                 onClick={() => {
-                  setIsActivityOpen(true);
+                  setIsDiscussionsOpen(true);
                   setIsCalendarOpen(false);
                   setIsResourcesOpen(false);
                   setIsDraftsOpen(false);
                   setIsProposalsOpen(false);
                 }}
                 className={`flex flex-col rounded-lg px-3 py-2  outline-none
-                    ${isActivityOpen && ' bg-stone-100 dark:bg-stone-700 '}
+                    ${isDiscussionsOpen && ' bg-stone-100 dark:bg-stone-700 '}
                   text-stone-600 dark:text-stone-200 text-sm`}>
-                Activity feed
-              </button>
-
-              {/* proposals  */}
-              <button
-                onClick={() => {
-                  setIsActivityOpen(false);
-                  setIsCalendarOpen(false);
-                  setIsResourcesOpen(false);
-                  setIsDraftsOpen(false);
-                  setIsProposalsOpen(true);
-                }}
-                className={`flex flex-col rounded-lg px-3 py-2  outline-none
-                    ${isProposalsOpen && ' bg-stone-100 dark:bg-stone-700 '}
-                  text-stone-600 dark:text-stone-200 text-sm`}>
-                Proposals
+                Discussions
               </button>
 
               {/* dao settings */}
@@ -427,6 +426,17 @@ export default function DaoPage({ params }: { params: { id: string } }) {
             </div>
             {/* tabs contents  */}
             <div className="flex flex-col flex-grow overflow-auto pb-2 h-full">
+              {/* proposals  */}
+              <div
+                className={` rounded-lg  
+                  flex flex-col flex-grow overflow-auto h-full
+                  transition-all duration-300 ease-in-out
+                ${isProposalsOpen ? 'max-h-full' : 'max-h-0'}  `}>
+                <div className="pb-2 h-full">
+                  <ProposalList daoAddress={daoAddress} />
+                </div>
+              </div>
+
               {/* projects and drafts  */}
               <div
                 className={` rounded-lg px-1 flex flex-col flex-grow overflow-auto
@@ -629,23 +639,12 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              {/* proposals  */}
-              <div
-                className={` rounded-lg  
-                  flex flex-col flex-grow overflow-auto h-full
-                  transition-all duration-300 ease-in-out
-                ${isProposalsOpen ? 'max-h-full' : 'max-h-0'}  `}>
-                <div className="pb-2 h-full">
-                  <ProposalList daoAddress={daoAddress} />
-                </div>
-              </div>
-
-              {/* activity feed  */}
+              {/* discussions */}
               <div
                 className={` rounded-lg  overflow-hidden transition-all duration-300 ease-in-out
-                ${isActivityOpen ? 'max-h-full' : 'max-h-0'}  `}>
+                ${isDiscussionsOpen ? 'max-h-full' : 'max-h-0'}  `}>
                 <div className="pb-2">
-                  <ActivityFeed />
+                  {/* <Discussions sss vssss s sss  /> */}
                 </div>
               </div>
 
