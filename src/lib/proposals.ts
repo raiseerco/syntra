@@ -1,6 +1,11 @@
-export const fetchSnapshotProposals = async (daoAddress: string) => {
+export const fetchSnapshotProposals = async (
+  daoAddress: string,
+  tallyOrgId: string,
+) => {
   try {
-    const response = await fetch(`/api/proposals?daoAddress=${daoAddress}`);
+    const response = await fetch(
+      `/api/proposals?daoAddress=${daoAddress}&organizationId=${tallyOrgId}`,
+    );
     const data = await response.json();
     return data;
   } catch (error) {

@@ -3,12 +3,12 @@
 import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
 
+import { ChevronDownIcon, LinkIcon } from 'lucide-react';
+import { LightningBoltIcon, Link1Icon } from '@radix-ui/react-icons';
 import { getTimeStart, getTimeUntil, shortAddress } from '../../lib/utils';
 import { useEffect, useState } from 'react';
 
-import { ChevronDownIcon } from 'lucide-react';
 import { ForwardRefEditor } from './ForwardRefEditor';
-import { LightningBoltIcon } from '@radix-ui/react-icons';
 import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
 import React from 'react';
@@ -16,14 +16,16 @@ import { fetchSnapshotProposals } from '../../lib/proposals';
 
 interface ProposalListProps {
   daoAddress: string;
+  tallyOrgId: string;
 }
 
 const DEFAULT_EMPTY = '← Select a proposal to view';
 
-export const ProposalList = ({ daoAddress }: ProposalListProps) => {
+export const ProposalList = ({ daoAddress, tallyOrgId }: ProposalListProps) => {
   const [proposals, setProposals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
+  const [showClosed, setShowClosed] = useState(false);
   const [cont, setCont] = useState(DEFAULT_EMPTY);
   const [proposal, setProposal] = useState<any>();
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
@@ -41,15 +43,8 @@ export const ProposalList = ({ daoAddress }: ProposalListProps) => {
     async function fetchProposals() {
       setIsLoading(true);
       try {
-        const tt = await fetchSnapshotProposals(daoAddress);
-        const ttt = tt.map((i: any) => {
-          return {
-            ...i,
-            source: 'snapshot',
-          };
-        });
-        console.log('ttt ', ttt);
-        setProposals(ttt);
+        const tt = await fetchSnapshotProposals(daoAddress, tallyOrgId);
+        setProposals(tt);
       } catch (err) {
         console.log('err ', err);
       } finally {
@@ -83,11 +78,13 @@ export const ProposalList = ({ daoAddress }: ProposalListProps) => {
             </div>
 
             <div className="flex flex-col flex-grow overflow-auto mt-3 px-3 h-full mb-2 w-full">
-              {proposals.map((p: any, k: number) => (
-                <button
-                  key={k}
-                  onClick={() => openProposal(p, k)}
-                  className={`rounded-lg w-full p-4 gap-2 flex flex-col mb-3 box-border dark:opacity-70 transition-all 
+              {proposals
+                .filter((p: any) => p.state !== 'closed')
+                .map((p: any, k: number) => (
+                  <button
+                    key={k}
+                    onClick={() => openProposal(p, k)}
+                    className={`rounded-lg w-full p-4 gap-2 flex flex-col mb-3 box-border dark:opacity-70 transition-all
                    hover:shadow-md cursor-pointer
 
                    ${
@@ -95,50 +92,144 @@ export const ProposalList = ({ daoAddress }: ProposalListProps) => {
                        ? 'bg-amber-50 dark:bg-amber-200 hover:bg-amber-50 dark:hover:bg-amber-300'
                        : 'bg-blue-50 dark:bg-blue-200 hover:bg-blue-50 dark:hover:bg-blue-300'
                    }
-                   
+
                    ${
                      selectedProposal === k
                        ? p.source === 'snapshot'
                          ? '  dark:bg-amber-300 border-amber-200 box-border dark:border-amber-500 border-2 shadow-md transition-all '
-                         : '  dark:bg-blue-600 border-blue-200 box-border dark:border-blue-500 border-2 shadow-md transition-all '
+                         : '  dark:bg-blue-300 border-blue-200 box-border dark:border-blue-500 border-2 shadow-md transition-all '
                        : ''
                    }`}>
-                  <div className="flex items-center w-full text-md justify-between">
-                    <span title={p.title} className="text-left truncate ">
-                      {p.title}
-                    </span>
-                    <span
-                      className={`${
-                        p.state === 'active' &&
-                        'bg-green-300 dark:bg-green-500 '
-                      } 
+                    <div className="flex items-center w-full text-md justify-between">
+                      <span title={p.title} className="text-left truncate ">
+                        {p.title}
+                      </span>
+
+                      <span
+                        className={`${
+                          p.state === 'active' &&
+                          'bg-green-300 dark:bg-green-500 '
+                        }
                          ${
                            p.state === 'closed' && 'bg-red-300 dark:bg-red-400 '
                          } rounded-sm text-xs px-2 py-1`}>
-                      {p.state}
-                    </span>
-                  </div>
-                  <div className="text-xs text-left pb-2 text-stone-400 dark:text-stone-600 ">
-                    {getTimeStart(p.end)}
-                  </div>
+                        {p.state}
+                      </span>
+                    </div>
+                    <div className="text-xs text-left pb-2 text-stone-400 dark:text-stone-600 ">
+                      {getTimeStart(p.end)}
+                    </div>
 
-                  <div className="text-xs w-full flex justify-between text-stone-600 dark:text-stone-600">
-                    <div className="flex gap-3 items-center">
-                      <span>{shortAddress(p.author)}</span>
-                      <span>•</span>
-                      <span>{getTimeUntil(p.start)}</span>
+                    <div className="text-xs w-full flex justify-between text-stone-600 dark:text-stone-600">
+                      <div className="flex gap-3 items-center">
+                        <span>{shortAddress(p.author)}</span>
+                        <span>•</span>
+                        <span>{getTimeUntil(p.start)}</span>
+                      </div>
+                      <div className="flex gap-1 items-center">
+                        {p.source !== 'tally' ? (
+                          <>
+                            <LightningBoltIcon
+                              className="text-amber-400"
+                              width={12}
+                              height={12}
+                            />
+                            Off-Chain
+                          </>
+                        ) : (
+                          <>
+                            <LinkIcon
+                              className="text-blue-600"
+                              width={12}
+                              height={12}
+                            />
+                            On-Chain
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-1 items-center">
-                      <LightningBoltIcon
-                        className="text-amber-400"
-                        width={12}
-                        height={12}
-                      />
-                      Off-Chain
-                    </div>
-                  </div>
+                  </button>
+                ))}
+
+              <div className="flex gap-2 w-full justify-center">
+                <button
+                  onClick={() => setShowClosed(!showClosed)}
+                  className="border text-xs w-full px-3 py-2 dark:border-stone-500 dark:text-stone-400 rounded-md mb-3">
+                  Past votes {showClosed ? '↑' : '↓'}
                 </button>
-              ))}
+              </div>
+              {showClosed &&
+                proposals
+                  .filter((p: any) => p.state === 'closed')
+                  .map((p: any, k: number) => (
+                    <button
+                      key={k}
+                      onClick={() => openProposal(p, k)}
+                      className={`rounded-lg w-full p-4 gap-2 flex flex-col mb-3 box-border dark:opacity-70 transition-all
+                   hover:shadow-md cursor-pointer
+
+                   ${
+                     p.source === 'snapshot'
+                       ? 'bg-amber-50 dark:bg-amber-200 hover:bg-amber-50 dark:hover:bg-amber-300'
+                       : 'bg-blue-50 dark:bg-blue-200 hover:bg-blue-50 dark:hover:bg-blue-300'
+                   }
+
+                   ${
+                     selectedProposal === k
+                       ? p.source === 'snapshot'
+                         ? '  dark:bg-amber-300 border-amber-200 box-border dark:border-amber-500 border-2 shadow-md transition-all '
+                         : '  dark:bg-blue-300 border-blue-200 box-border dark:border-blue-500 border-2 shadow-md transition-all '
+                       : ''
+                   }`}>
+                      <div className="flex items-center w-full text-md justify-between">
+                        <span title={p.title} className="text-left truncate ">
+                          {p.title}
+                        </span>
+                        <span
+                          className={`${
+                            p.state === 'active' &&
+                            'bg-green-300 dark:bg-green-500 '
+                          }
+                         ${
+                           p.state === 'closed' && 'bg-red-300 dark:bg-red-400 '
+                         } rounded-sm text-xs px-2 py-1`}>
+                          {p.state}
+                        </span>
+                      </div>
+                      <div className="text-xs text-left pb-2 text-stone-400 dark:text-stone-600 ">
+                        {getTimeStart(p.end)}
+                      </div>
+
+                      <div className="text-xs w-full flex justify-between text-stone-600 dark:text-stone-600">
+                        <div className="flex gap-3 items-center">
+                          <span>{shortAddress(p.author)}</span>
+                          <span>•</span>
+                          <span>{getTimeUntil(p.start)}</span>
+                        </div>
+                        <div className="flex gap-1 items-center">
+                          {p.source !== 'tally' ? (
+                            <>
+                              <LightningBoltIcon
+                                className="text-amber-400"
+                                width={12}
+                                height={12}
+                              />
+                              Off-Chain
+                            </>
+                          ) : (
+                            <>
+                              <LinkIcon
+                                className="text-blue-600"
+                                width={12}
+                                height={12}
+                              />
+                              On-Chain
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
             </div>
           </div>
 

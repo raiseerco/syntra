@@ -67,6 +67,8 @@ export default function DaoPage({ params }: { params: { id: string } }) {
     setShowBack,
     daoAddress,
     setDaoAddress,
+    tallyOrgId,
+    setTallyOrgId,
   } = useDAO();
   setName(idDao);
   setShowBack(true);
@@ -268,6 +270,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
         setColor(docs?.settings[0].color || 'stone-100');
         setColorDark(docs?.settings[0].colorDark || 'stone-900');
         setDaoAddress(docs?.settings[0].daoAddress || ''); // FIXME THIS WILL BE BROKEN WITH TALLY
+        setTallyOrgId(docs?.settings[0].tallyOrgId || '');
         setLoading(false);
       } catch (err) {
         setError('Error fetching documents ');
@@ -433,7 +436,10 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   transition-all duration-300 ease-in-out
                 ${isProposalsOpen ? 'max-h-full' : 'max-h-0'}  `}>
                 <div className="pb-2 h-full">
-                  <ProposalList daoAddress={daoAddress} />
+                  <ProposalList
+                    daoAddress={daoAddress}
+                    tallyOrgId={tallyOrgId}
+                  />
                 </div>
               </div>
 
