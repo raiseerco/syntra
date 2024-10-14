@@ -79,7 +79,7 @@ export const ProposalList = ({ daoAddress, tallyOrgId }: ProposalListProps) => {
 
             <div className="flex flex-col flex-grow overflow-auto mt-3 px-3 h-full mb-2 w-full">
               {proposals
-                .filter((p: any) => p.state !== 'closed')
+                ?.filter((p: any) => p.state !== 'closed')
                 .map((p: any, k: number) => (
                   <button
                     key={k}
@@ -160,7 +160,7 @@ export const ProposalList = ({ daoAddress, tallyOrgId }: ProposalListProps) => {
               </div>
               {showClosed &&
                 proposals
-                  .filter((p: any) => p.state === 'closed')
+                  ?.filter((p: any) => p.state === 'closed')
                   .map((p: any, k: number) => (
                     <button
                       key={k}
