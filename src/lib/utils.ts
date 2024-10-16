@@ -339,92 +339,55 @@ export function escapeMD(text: string) {
   return formattedText;
 }
 
-export function getTimeUntil(targetEpoch: number): string {
+export function getTimeAgo(targetEpoch: number): string {
   const currentTime = Math.floor(Date.now() / 1000);
-
   const timeDifference = targetEpoch - currentTime;
 
   if (timeDifference <= 0) {
     const timePassed = Math.abs(timeDifference);
     const daysPassed = Math.floor(timePassed / (60 * 60 * 24));
     const hoursPassed = Math.floor((timePassed % (60 * 60 * 24)) / (60 * 60));
-    const minutesPassed = Math.floor((timePassed % (60 * 60)) / 60);
 
-    let result = 'Finished ';
+    let result = '';
 
     if (daysPassed > 0) {
-      result += `${daysPassed}d${daysPassed !== 1 ? '' : ''} `;
+      result += `${daysPassed} day${daysPassed !== 1 ? 's' : ''} ago`;
+    } else if (hoursPassed > 0) {
+      result += `${hoursPassed} hour${hoursPassed !== 1 ? 's' : ''} ago`;
     }
-
-    if (hoursPassed > 0) {
-      result += `${hoursPassed}h${hoursPassed !== 1 ? '' : ''} `;
-    }
-
-    result += `${minutesPassed}m${minutesPassed !== 1 ? '' : ''} ago`;
-
-    return result;
+    return result || 'just now';
   }
 
-  const days = Math.floor(timeDifference / (60 * 60 * 24));
-  const hours = Math.floor((timeDifference % (60 * 60 * 24)) / (60 * 60));
-  const minutes = Math.floor((timeDifference % (60 * 60)) / 60);
-
-  let result = 'Vote finishes in ';
-
-  if (days > 0) {
-    result += `${days} d${days !== 1 ? '' : ''} `;
-  }
-
-  if (hours > 0) {
-    result += `${hours} h${hours !== 1 ? '' : ''} `;
-  }
-
-  result += `${minutes} m${minutes !== 1 ? '' : ''}`;
-
-  return result;
+  return '';
 }
 
-export function getTimeStart(targetEpoch: number): string {
+export function getTimeUntil(targetEpoch: number): string {
   const currentTime = Math.floor(Date.now() / 1000);
-
   const timeDifference = targetEpoch - currentTime;
-
   if (timeDifference <= 0) {
-    const timePassed = Math.abs(timeDifference);
-    const daysPassed = Math.floor(timePassed / (60 * 60 * 24));
-    const hoursPassed = Math.floor((timePassed % (60 * 60 * 24)) / (60 * 60));
-    const minutesPassed = Math.floor((timePassed % (60 * 60)) / 60);
-
-    let result = 'Started ';
-
-    if (daysPassed > 0) {
-      result += `${daysPassed}d${daysPassed !== 1 ? '' : ''} `;
-    }
-
-    if (hoursPassed > 0) {
-      result += `${hoursPassed}h${hoursPassed !== 1 ? '' : ''} `;
-    }
-
-    result += `${minutesPassed}m${minutesPassed !== 1 ? '' : ''} ago`;
-
-    return result;
+    return 'Finalized';
   }
 
-  const days = Math.floor(timeDifference / (60 * 60 * 24));
-  const hours = Math.floor((timeDifference % (60 * 60 * 24)) / (60 * 60));
-  const minutes = Math.floor((timeDifference % (60 * 60)) / 60);
+  const daysRemaining = Math.floor(timeDifference / (60 * 60 * 24));
+  const hoursRemaining = Math.floor(
+    (timeDifference % (60 * 60 * 24)) / (60 * 60),
+  );
 
-  let result = 'Vote finishes in ';
-
-  if (days > 0) {
-    result += `${days}d${days !== 1 ? '' : ''} `;
+  let result = 'Finalizes in ';
+  if (daysRemaining > 0) {
+    result += `${daysRemaining} day${daysRemaining !== 1 ? 's' : ''} `;
+  }
+  if (hoursRemaining > 0 || daysRemaining === 0) {
+    result += `${hoursRemaining} hour${hoursRemaining !== 1 ? 's' : ''} `;
   }
 
-  if (hours > 0) {
-    result += `${hours}h${hours !== 1 ? '' : ''} `;
-  }
+  return result.trim();
+}
 
-  result += `${minutes}m${minutes !== 1 ? '' : ''}`;
+export function parseIPFS(urlIPFS: string) {
+  if (!urlIPFS || urlIPFS.includes('http')) return urlIPFS;
 
-  return result;
+  const ipfs = urlIPFS.split('//')[1];
+  const ipfsWithProtocol = `https://ipfs.io/ipfs/${ipfs}`;
+  return ipfsWithProtocol;
 }

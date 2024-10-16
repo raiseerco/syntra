@@ -110,9 +110,10 @@ const Editor = ({
       placeholder="Write your proposal here..."
       contentEditableClassName="prose  
        prose-sm dark:prose-invert max-w-none
-        prose-h1:text-3xl prose-headings:font-semibold
+        prose-h1:text-3xl prose-headings:font-normal prose-headings:py-2
+        prose-p:pb-1 prose-li:pb-1
         prose-h2:text-2xl
-        prose-h3:text-xl 
+        prose-h3:text-xl
         prose-h4:text-lg
         prose-h5:text-base "
       className=" flex  flex-col flex-grow overflow-y-auto"

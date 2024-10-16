@@ -53,6 +53,35 @@ export async function GET(req: Request) {
       body: JSON.stringify({ query: querySnapshot, variables: varSnapshot }),
     });
 
+    const dataSnapshot = await resSnapshot.json();
+
+    const queryUserSnapshot = `
+    query getUsers($ids: [String!]) {
+      users(where: { id_in: $ids }) {
+        id
+        name
+        twitter
+        about
+        avatar
+        about
+      }
+    }
+  `;
+
+    const varUserSnapshot = {
+      ids: dataSnapshot.data.proposals.map((i: any) => i.author),
+    };
+    const resUserSnapshot = await fetch(SNAPSHOT_GRAPHQL_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: queryUserSnapshot,
+        variables: varUserSnapshot,
+      }),
+    });
+
     // tally area
     const queryTally = `
       query Proposals($input: ProposalsInput!) {
@@ -288,52 +317,60 @@ export async function GET(req: Request) {
       );
     }
 
-    const [dataTally, dataSnapshot] = await Promise.all([
+    const [dataTally, dataUserSnapshot] = await Promise.all([
       resTally.json(),
-      resSnapshot.json(),
+      resUserSnapshot.json(),
     ]);
 
-    // FIXME data clipping
+    // console.log('dataTally', dataTally.data.proposals.nodes[1]);
 
-    // this is the structure to use
-    //   {
-    //     "id": "0x29dd01ffe47f08352a79e5b8aab35d3cf8ba5bc60710fedeea821df181afcb23",
-    //     "title": "Perpie LTIPP Council Recommended Proposal",
-    //     "body": "## Link to Application\nhttps://forum.arbitrum.foundation/t/perpie-ltipp-application-draft/22079\n\n## Council - 3/3 Yes Votes\n\n### Feedback\n\n*Wintermute Feedback)*\nPerpie’s application is pretty solid and ticks off a lot of criteria. The main areas they lost points in are the grant request size in conjunction with the product’s usage and age.\n\nTheir distribution strategy seems fine although there may be potential for users to abuse self-referral rebates. Nonetheless, the distribution strategy is heavily focused on the end user and promoting trading activity on Arbitrum which is great.\n\nWhile we don’t think the grant size is justified, we plan to support Perpie as the Telegram bot industry has seen high demand. Thus, we think it’s reasonable for delegates to decide the outcome.\n\n*Karel Feedback)*\n\"Vote FOR Perpie's proposal.\n\nGood proposal that scored well across rubric. Supportive as given nature of the product (Telegram bot), composability, and usage in line with GMX STIP campaign. Keen to see other aspects of roadmap implemented. Over to the DAO.\"\t\t\n\n*404 Feedback)*\nOverall, Perpie’s application was decent and they addressed all the necessary components. They have had strong usage during other incentive programs, retention is a bit of a concern though. While the grant ask is a little high we support Perpie as demand for the TG bot industry is evident and is something Arbitrum DAO should support for LTIPP",
-    //     "choices": [
-    //         "For",
-    //         "Against",
-    //         "Abstain"
-    //     ],
-    //     "start": 1712620800,
-    //     "end": 1713225600,
-    //     "snapshot": 199011809,
-    //     "state": "closed",
-    //     "author": "0x18BF1a97744539a348304E9d266aAc7d446a1582",
-    //     "space": {
-    //         "id": "arbitrumfoundation.eth",
-    //         "name": "Arbitrum DAO"
-    //     }
-    // }
+    console.log('dataUserSnapshot', dataUserSnapshot.data.users);
 
+    console.log('dataSnapshot', dataSnapshot.data.proposals[1]);
     const dataTallyClipped = dataTally.data.proposals.nodes.map((i: any) => ({
       id: i.id,
       title: i.metadata.title,
       body: i.metadata.description,
       choices: ['For', 'Against', 'Abstain'],
-      start: i.start.timestamp,
-      end: i.end.timestamp,
-      author: i.proposer.address, // FIXME creator?
+      start: new Date(i.start.timestamp).getTime() / 1000,
+      end: new Date(i.end.timestamp).getTime() / 1000,
+      author: {
+        address: i.creator.address,
+        ens: i.creator.ens,
+        twitter: i.creator.twitter,
+        name: i.creator.name,
+        bio: i.creator.bio,
+        picture: i.creator.picture,
+        // safes: i.creator.safes, // TBD
+        // type: i.creator.type,
+      },
       snapshot: i.block.number,
       state: i.status,
       space: 'dummy',
       source: 'tally',
     }));
 
-    const dataSnapshotClipped = dataSnapshot.data.proposals.map((i: any) => ({
-      ...i,
-      source: 'snapshot',
-    }));
+    // find author in dataUserSnapshot by id
+    const findAuthor = (id: string) => {
+      const author = dataUserSnapshot.data.users.find((i: any) => i.id === id);
+      return author;
+    };
+
+    const dataSnapshotClipped = dataSnapshot.data.proposals.map((i: any) => {
+      const author = findAuthor(i.author);
+      return {
+        ...i,
+        source: 'snapshot',
+        author: {
+          address: i.author,
+          ens: author?.name,
+          twitter: author?.twitter,
+          name: author?.name,
+          bio: author?.about,
+          picture: `https://cdn.stamp.fyi/avatar/eth:${i.author}`,
+        },
+      };
+    });
 
     const data = {
       tally: dataTallyClipped,
