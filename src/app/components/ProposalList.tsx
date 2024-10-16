@@ -126,7 +126,7 @@ export const ProposalList = ({ daoAddress, tallyOrgId }: ProposalListProps) => {
   const [showClosed, setShowClosed] = useState(false);
   const [cont, setCont] = useState(DEFAULT_EMPTY);
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
-  const [openedProposal, setOpenedProposal] = useState();
+  const [openedProposal, setOpenedProposal] = useState<any>();
   const ref = React.useRef<MDXEditorMethods>(null);
 
   const openProposal = (p: any, index: number) => {
