@@ -333,7 +333,6 @@ export async function GET(req: Request) {
       body: i.metadata.description,
       choices: ['For', 'Against', 'Abstain'],
       start: new Date(i.start.timestamp).getTime() / 1000,
-      start: new Date(i.start.timestamp).getTime() / 1000,
       end: new Date(i.end.timestamp).getTime() / 1000,
       author: {
         address: i.creator.address,

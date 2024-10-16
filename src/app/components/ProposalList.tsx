@@ -2,14 +2,14 @@
 
 import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/Avatar';
 
+import { Avatar, AvatarFallback, AvatarImage } from './ui/Avatar';
 import { ChevronDownIcon, LinkIcon } from 'lucide-react';
 import {
-  getTimeUntil,
   getTimeAgo,
-  shortAddress,
+  getTimeUntil,
   parseIPFS,
+  shortAddress,
 } from '../../lib/utils';
 import { useEffect, useState } from 'react';
 
@@ -126,7 +126,7 @@ export const ProposalList = ({ daoAddress, tallyOrgId }: ProposalListProps) => {
   const [showClosed, setShowClosed] = useState(false);
   const [cont, setCont] = useState(DEFAULT_EMPTY);
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
-  const [openedProposal, setOpenedProposal] = useState<>();
+  const [openedProposal, setOpenedProposal] = useState();
   const ref = React.useRef<MDXEditorMethods>(null);
 
   const openProposal = (p: any, index: number) => {
