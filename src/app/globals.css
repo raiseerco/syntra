@@ -145,3 +145,25 @@
   /* line-height: 1.6; */
   padding: 20px;
 }
+
+@keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.hover\:animate-marquee:hover {
+  animation: marquee 5s linear infinite;
+  white-space: nowrap;
+  display: inline-block;
+  overflow: clip;
+  text-overflow: unset;
+}
+
+.relative {
+  max-width: 100%;
+  display: inline-block;
+}
