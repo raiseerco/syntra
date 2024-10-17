@@ -40,24 +40,31 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   // const par = useParams();
   const [isProposalsOpen, setIsProposalsOpen] = useState(true);
   const [isDraftsOpen, setIsDraftsOpen] = useState(false);
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [daoTemplate, setDaoTemplate] = useState<any>();
   const [isResourcesOpen, setIsResourcesOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isDiscussionsOpen, setIsDiscussionsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [template, setTemplate] = useState('');
-
   const [calendar, setCalendar] = useState([]);
   const { authenticated, user, ready } = useAuth();
-
   const [daoLinks, setDaoLinks] = useState<DaoLink[]>([]);
   const [daoSettings, setDaoSettings] = useState<DaoLink[]>([]);
   const [daoTemplates, setDaoTemplates] = useState<DaoLink[]>([]);
+  const [daoTemplate, setDaoTemplate] = useState<any>();
+  const [documentId, setDocumentId] = useState<any>();
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [calendarId, setCalendarId] = useState('');
-  // logo,
-  // color,
-  // colorDark,
+  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<any>([]);
+  const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
+  const [showNew, setShowNew] = useState(false);
+  const [newProject, setNewProject] = useState('untitled');
+  const [error, setError] = useState<string | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [allDocuments, setAllDocuments] = useState<any[]>([]);
+  const [isProjectsCollapsed, setIsProjectsCollapsed] = useState(false);
+  const [isProjectsMinimized, setIsProjectsMinimized] = useState(false);
+
   const {
     setLogo,
     setColor,
@@ -72,20 +79,6 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   } = useDAO();
   setName(idDao);
   setShowBack(true);
-
-  const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState<any>([]);
-  const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
-
-  const [showNew, setShowNew] = useState(false);
-  const [newProject, setNewProject] = useState('untitled');
-
-  const [error, setError] = useState<string | null>(null);
-  const [documents, setDocuments] = useState<any[]>([]);
-  const [allDocuments, setAllDocuments] = useState<any[]>([]);
-  const [documentId, setDocumentId] = useState<any>();
-  const [isProjectsCollapsed, setIsProjectsCollapsed] = useState(false);
-  const [isProjectsMinimized, setIsProjectsMinimized] = useState(false);
 
   // const { wallets } = useWallets();
 
@@ -437,6 +430,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                 ${isProposalsOpen ? 'max-h-full' : 'max-h-0'}  `}>
                 <div className="pb-2 h-full">
                   <ProposalList
+                    idDao={idDao}
                     daoAddress={daoAddress}
                     tallyOrgId={tallyOrgId}
                   />
@@ -738,14 +732,6 @@ export default function DaoPage({ params }: { params: { id: string } }) {
             </div>
           </div>
         ) : (
-          // <div
-          //   className="px-3
-          //     bg-stone-100 dark:bg-stone-700 dark:text-stone-400
-          //     bg-opacity-90 backdrop-blur-sm rounded-xl
-          //     absolute z-50 w-full h-screen right-0 shadow-lg
-          //     transition-opacity duration-300 ease-in-out
-          //     opacity-100">
-
           // sliding editor
           <div
             className=" px-4
