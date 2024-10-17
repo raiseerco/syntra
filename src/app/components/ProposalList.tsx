@@ -46,13 +46,13 @@ const ProposalCard = ({ p, index, openProposal, selectedProposal }: any) => {
       key={index}
       onClick={() => openProposal(p, index)}
       className={`${baseStyle} ${bgColor} ${selectedStyle}`}>
-      <div className="flex items-center w-full text-md justify-between">
-        {/* <span title={p.title} className="text-left truncate "> */}
-        <span
-          title={p.title}
-          className="text-left overflow-hidden whitespace-nowrap truncate hover:animate-scroll hover:truncate-none">
-          {p.title}
-        </span>
+      <div className="flex items-center w-full text-md justify-between ">
+        <div className="relative max-w-full overflow-hidden">
+          <div className="hover:animate-marquee truncate whitespace-nowrap">
+            {p.title}
+          </div>
+        </div>
+
         <ProposalStateBadge state={p.state} />
       </div>
       <div className="text-xs text-left pb-2 text-stone-400 dark:text-stone-600">
