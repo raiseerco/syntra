@@ -168,7 +168,7 @@ export const ProposalList = ({
                       setDaoTemplate('Write your proposal here');
                       setIsEditorOpen(true);
                     }}
-                    className="items-center rounded-md flex gap-1 px-2 py-1 text-xs bg-black">
+                    className="items-center rounded-md flex gap-1 px-2 py-1 text-xs border">
                     <Pencil2Icon />
                     New draft
                   </button>
