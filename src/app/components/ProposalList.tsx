@@ -16,7 +16,7 @@ import { ProposalFilters } from './ui/ProposalFilters';
 import React from 'react';
 import { fetchSnapshotProposals } from '../../lib/proposals';
 import { useAuth } from './contexts/AuthContext';
-import { useDAO } from './contexts/DAOContext';
+import { useMixpanel } from './contexts/mixpanelContext';
 
 interface ProposalListProps {
   daoAddress: string;
@@ -36,7 +36,7 @@ export const ProposalList = ({
   const [isLoading, setIsLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
-
+  const { trackEvent } = useMixpanel();
   const { user } = useAuth();
 
   const [daoTemplate, setDaoTemplate] = useState<any>('Write something... ');
@@ -61,6 +61,10 @@ export const ProposalList = ({
     setSelectedProposal(index);
     setOpenedProposal(p);
     console.log('ppp', p);
+    trackEvent('open-proposal', {
+      user: user?.wallet?.address,
+      proposal: p.id,
+    });
   };
 
   async function fetchProposals() {

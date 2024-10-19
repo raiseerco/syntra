@@ -3,6 +3,7 @@
 import '../../app/globals.css';
 
 import Link from 'next/link';
+import { useMixpanel } from '../components/contexts/mixpanelContext';
 import { useRouter } from 'next/navigation';
 
 export default function LandingLayout({
@@ -11,6 +12,7 @@ export default function LandingLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const { trackEvent } = useMixpanel();
 
   return (
     <div className="min-h-screen">
@@ -69,7 +71,9 @@ export default function LandingLayout({
             </Link>
           </div>
 
-          <Link href={'/home'}>
+          <Link
+            onClick={() => trackEvent('Clicked Open App in toolbar')}
+            href={'/home'}>
             <div className="rounded-full bg-rose-300 dark:bg-red-400 pl-4 pr-2 py-2 text-xs xs:text-xs sm:text-xs md:text-xs lg:text-lg">
               Open app
               <span className="bg-black ml-2 rounded-full px-2 py-1 text-white ">
@@ -148,8 +152,10 @@ export default function LandingLayout({
             </div>
 
             <button
-              //  href={'/home'}
-              onClick={() => router.push('/home')}>
+              onClick={() => {
+                trackEvent('Clicked Open App in footer');
+                router.push('/home');
+              }}>
               <div className="outline-none rounded-full bg-rose-300 dark:bg-red-400 pl-4 pr-2 py-2 text-xs xs:text-xs sm:text-xs md:text-xs lg:text-lg">
                 Open app
                 <span className="bg-black ml-2 rounded-full px-2 py-1 text-white ">

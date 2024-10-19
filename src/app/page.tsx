@@ -4,8 +4,12 @@ import Image from 'next/image';
 import InfiniteCarousel from './components/ui/InfiniteCarousel';
 import LandingLayout from './layouts/landingLayout';
 import Link from 'next/link';
+import { useMixpanel } from './components/contexts/mixpanelContext';
 
 export default function Home() {
+  const { trackEvent } = useMixpanel();
+  trackEvent('Landed on Home');
+
   return (
     <LandingLayout>
       <style jsx global>{`
@@ -64,6 +68,7 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-6 gap-4">
               <Link
+                onClick={() => trackEvent('Clicked Open App in hero')}
                 href="/home"
                 className="rounded-full bg-rose-300 dark:bg-red-400 px-6 py-3 text-sm font-medium inline-flex items-center">
                 Get Started
@@ -177,6 +182,7 @@ export default function Home() {
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <Link
+            onClick={() => trackEvent('Clicked Open App in bottom')}
             href="/home"
             className="rounded-full bg-rose-300 dark:bg-red-400 px-6 py-3 text-sm font-medium inline-flex items-center">
             Get started
@@ -184,7 +190,10 @@ export default function Home() {
               →
             </span>
           </Link>
-          <Link href="/home" className="text-sm dark:text-stone-300">
+          <Link
+            onClick={() => trackEvent('Clicked Open App in bottom 2')}
+            href="/home"
+            className="text-sm dark:text-stone-300">
             ● Learn more
           </Link>
         </div>

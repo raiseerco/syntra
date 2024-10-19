@@ -27,6 +27,7 @@ import { getCalendar } from '../../../lib/calendar';
 import { getDocument } from '../../../lib/firestore';
 import { useAuth } from '../../components/contexts/AuthContext';
 import { useDAO } from '../../components/contexts/DAOContext';
+import { useMixpanel } from '../../components/contexts/mixpanelContext';
 
 const CollaborativeEditor = dynamic(
   () => import('../../components/CollaborativeEditor'),
@@ -64,7 +65,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   const [allDocuments, setAllDocuments] = useState<any[]>([]);
   const [isProjectsCollapsed, setIsProjectsCollapsed] = useState(false);
   const [isProjectsMinimized, setIsProjectsMinimized] = useState(false);
-
+  const { trackEvent } = useMixpanel();
   const {
     setLogo,
     setColor,
@@ -368,6 +369,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   setIsDiscussionsOpen(false);
                   setIsDraftsOpen(false);
                   setIsProposalsOpen(false);
+                  trackEvent('dao-resources', { user: user?.wallet?.address });
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
                   ${isResourcesOpen && ' bg-stone-100 dark:bg-stone-700 '}
@@ -383,6 +385,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   setIsResourcesOpen(false);
                   setIsDiscussionsOpen(false);
                   setIsProposalsOpen(false);
+                  trackEvent('calendar', { user: user?.wallet?.address });
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
                       ${isCalendarOpen && ' bg-stone-100 dark:bg-stone-700 '}
@@ -556,6 +559,9 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                             setDocumentId('0');
                             setDaoTemplate('');
                             setIsEditorOpen(true);
+                            trackEvent('new draft button', {
+                              user: user?.wallet?.address,
+                            });
                           }}
                           className="text-xs rounded-md px-3 py-2
                              dark:hover:bg-stone-700
@@ -593,6 +599,9 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                                   setDocumentId('0');
                                   setDaoTemplate(i);
                                   setIsEditorOpen(true);
+                                  trackEvent('new draft with template', {
+                                    user: user?.wallet?.address,
+                                  });
                                 }}
                                 className="hover:bg-stone-200  hover:dark:bg-stone-600  
                               outline-none cursor-pointer rounded-md px-3 py-2">
