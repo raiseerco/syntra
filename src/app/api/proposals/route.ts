@@ -28,6 +28,10 @@ export async function GET(req: Request) {
             title
             body
             choices
+            scores
+            scores_state
+            scores_total
+            scores_updated
             start
             end
             snapshot
@@ -324,17 +328,19 @@ export async function GET(req: Request) {
 
     // console.log('dataTally', dataTally.data.proposals.nodes[1]);
 
-    console.log('dataUserSnapshot', dataUserSnapshot.data.users);
+    // console.log('dataUserSnapshot', dataUserSnapshot.data.users);
 
-    console.log('dataSnapshot', dataSnapshot.data.proposals[1]);
+    // console.log('dataSnapshot', dataSnapshot.data.proposals[1]);
     const dataTallyClipped = dataTally.data.proposals.nodes.map((i: any) => ({
       id: i.id,
       title: i.metadata.title,
       body: i.metadata.description,
-      choices: ['For', 'Against', 'Abstain'],
+      quorum: i.quorum,
+      choices: i.voteStats,
       start: new Date(i.start.timestamp).getTime() / 1000,
       end: new Date(i.end.timestamp).getTime() / 1000,
       author: {
+        // FIXME proposer?
         address: i.creator.address,
         ens: i.creator.ens,
         twitter: i.creator.twitter,
@@ -356,11 +362,43 @@ export async function GET(req: Request) {
       return author;
     };
 
+    // this is the data from tally, and the destination format
+    // voteStats: [
+    //   {
+    //     type: 'for',
+    //     votesCount: '85944579175198098275816758',
+    //     votersCount: 5827,
+    //     percent: 84.90720528082699
+    //   },
+
+    // this is the data from snapshot, and the source format that need to be converted to tally format
+    // "choices": [
+    //     "Approve YIP-210",
+    //     "Do Not Approve"
+    //   ],
+    //   "scores": [
+    //     286653.5335327927,
+    //     0
+    //   ],
+    //   "scores_state": "final",
+    //   "scores_total": 286653.5335327927,
+    //   "scores_updated": 1682430127,
+
+    // create a new object with the same format as tally, keep in mind that choinces is an array with any number of choices
+
     const dataSnapshotClipped = dataSnapshot.data.proposals.map((i: any) => {
       const author = findAuthor(i.author);
       return {
         ...i,
         source: 'snapshot',
+        choices: i.choices.map((choice: any, index: number) => ({
+          type: choice,
+          votesCount: i.scores[index],
+          votersCount: i.scores_total,
+          percent:
+            i.scores_total === 0 ? 0 : (i.scores[index] / i.scores_total) * 100,
+        })),
+
         author: {
           address: i.author,
           ens: author?.name,
