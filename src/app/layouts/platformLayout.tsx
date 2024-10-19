@@ -22,7 +22,6 @@ import { HeadBar } from '../components/ui/HeadBar';
 import Link from 'next/link';
 import Loader from '../components/ui/Loader';
 import { LoginButton } from '../components/ui/LoginButton';
-import { initMixpanel } from '../../lib/mixpanel';
 import { useDAO } from '../components/contexts/DAOContext';
 import { usePrivy } from '@privy-io/react-auth';
 
@@ -61,10 +60,6 @@ export default function PlatformLayout({
   const [feedback, setFeedback] = useState(false);
   const { color, logo, colorDark } = useDAO();
   const { theme, setTheme, systemTheme } = useTheme();
-
-  useEffect(() => {
-    initMixpanel();
-  }, []);
 
   const isDarkMode = systemTheme !== 'light';
 
