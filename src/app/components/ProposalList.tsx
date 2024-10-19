@@ -245,25 +245,33 @@ export const ProposalList = ({
                         className="w-full space-y-4 p-4">
                         <div className="flex flex-col gap-4 text-sm text-stone-600 dark:text-stone-400">
                           {openedProposal &&
-                            openedProposal.choices.map(
-                              (c: string, k: number) => (
-                                <div key={k} className="flex flex-col gap-2">
+                            openedProposal.choices.map((c: any, k: number) => (
+                              <div key={k} className="flex flex-col gap-1">
+                                <div className="flex justify-between">
                                   <span className="text-stone-700 dark:text-stone-300">
-                                    {c}
+                                    {c.type}
                                   </span>
-                                  <Progress.Root
-                                    className="relative overflow-hidden bg-stone-300 dark:bg-stone-600 rounded-full w-full h-2"
-                                    value={2}>
-                                    <Progress.Indicator
-                                      className="bg-stone-500 dark:bg-black h-full rounded-full transition-transform"
-                                      style={{
-                                        transform: `translateX(-${100 - 2}%)`,
-                                      }}
-                                    />
-                                  </Progress.Root>
+
+                                  <span className="text-stone-700 dark:text-stone-300">
+                                    {/* FIXME  */}
+                                    {c.votesCount} ({c.percent.toFixed(2)}
+                                    %)
+                                  </span>
                                 </div>
-                              ),
-                            )}
+                                <Progress.Root
+                                  className="relative overflow-hidden bg-stone-300 dark:bg-stone-600 rounded-full w-full h-2"
+                                  value={c.percent}>
+                                  <Progress.Indicator
+                                    className="bg-stone-900 dark:bg-black h-full rounded-full transition-transform"
+                                    style={{
+                                      transform: `translateX(-${
+                                        100 - c.percent
+                                      }%)`,
+                                    }}
+                                  />
+                                </Progress.Root>
+                              </div>
+                            ))}
                         </div>
                       </Tabs.Content>
 
