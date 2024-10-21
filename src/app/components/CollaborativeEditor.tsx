@@ -13,7 +13,6 @@ import {
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
 import { ForwardRefEditor } from './ForwardRefEditor';
-import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
 import MetadataBar from './MetadataBar';
 import { useDAO } from './contexts/DAOContext';
@@ -47,11 +46,14 @@ const MarkdownEditor: React.FC<{
   const ref = React.useRef<MDXEditorMethods>(null);
 
   const { setShowBack } = useDAO();
-  setShowBack(false);
 
   const isAlreadyEscaped = (text: string) => {
     return /\\[\\`*_{}\[\]()#+\-.!]/.test(text);
   };
+
+  useEffect(() => {
+    setShowBack(false);
+  }, []);
 
   useEffect(() => {
     const fetchDocument = async () => {
