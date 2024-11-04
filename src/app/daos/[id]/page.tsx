@@ -78,8 +78,6 @@ export default function DaoPage({ params }: { params: { id: string } }) {
     tallyOrgId,
     setTallyOrgId,
   } = useDAO();
-  setName(idDao);
-  setShowBack(true);
 
   // const { wallets } = useWallets();
 
@@ -174,6 +172,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
   async function fetchDocuments() {
     try {
+      console.log('fetching documents')
       setDaoTemplate(undefined);
       const docs = await fetchAllDocuments(
         `/documents/${idDao}/${user?.wallet?.address}`,
@@ -236,6 +235,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
       setProjects(nonZeroId);
       setSelectedProject(ALL_DOCS_FOLDER);
       setIsEditorOpen(false);
+      console.log('fetching ended.')
     } catch (error) {
       console.error('Failed to get documents:', error);
     }
@@ -248,6 +248,11 @@ export default function DaoPage({ params }: { params: { id: string } }) {
       : setDocuments(allDocuments.filter(d => d.project === pro));
     setSelectedProject(pro);
   };
+
+  useEffect(() => {
+    setName(idDao);
+    setShowBack(true);
+  }, [idDao, setName, setShowBack]);
 
   useEffect(() => {
     async function fetchDAOLinks() {
@@ -348,12 +353,14 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
               {/* drafts  */}
               <button
-                onClick={() => {
+                onClick={async () => {
+                  await fetchDocuments()
                   setIsDraftsOpen(true);
                   setIsResourcesOpen(false);
                   setIsCalendarOpen(false);
                   setIsDiscussionsOpen(false);
                   setIsProposalsOpen(false);
+                  // refresh draft list
                 }}
                 className={`  rounded-lg px-3 py-2  outline-none
                   ${isDraftsOpen && ' bg-stone-100 dark:bg-stone-700 '}
@@ -750,6 +757,9 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                 opacity-100">
             {user?.wallet?.address && idDao && (
               <CollaborativeEditor
+                afterSave2={()=>true}
+                proposalURL={''}
+                backToProposals={false}
                 daoTemplate={daoTemplate}
                 folder={`${idDao}/${user?.wallet?.address}`}
                 documentId={documentId}

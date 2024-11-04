@@ -28,10 +28,13 @@ export default function DraftPage({
         opacity-100">
           {user?.wallet?.address && idDao && (
             <CollaborativeEditor
+              proposalURL={''}
+              backToProposals={false}
               daoTemplate={undefined} // no no
               folder={`${idDao}/${user?.wallet?.address}`}
               documentId={docId}
               afterSave={() => console.log('saved')} // no no
+              afterSave2={() => true} // no no
               projectName={selectedProject} // from props
               projects={
                 []

@@ -13,29 +13,34 @@ import {
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
 import { ForwardRefEditor } from './ForwardRefEditor';
-import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
 import MetadataBar from './MetadataBar';
 import { useDAO } from './contexts/DAOContext';
 
 const MarkdownEditor: React.FC<{
+  backToProposals:boolean;
+  proposalURL:string;
   daoTemplate: any;
   folder: string;
   documentId: string;
   afterSave: () => void;
+  afterSave2: () => void;
   projectName: string;
   projects: any[];
 }> = ({
+  backToProposals,
+  proposalURL,
   daoTemplate,
   folder,
   documentId,
   afterSave,
+  afterSave2,
   projectName,
   projects,
 }: any) => {
   const [cont, setCont] = useState('');
   const [title, setTitle] = useState('');
-  const [link, setLink] = useState('');
+  const [link, setLink] = useState(proposalURL);
   const [priority, setPriority] = useState('medium');
   const [project, setProject] = useState(projectName);
   const [tags, setTags] = useState([]);
@@ -47,11 +52,14 @@ const MarkdownEditor: React.FC<{
   const ref = React.useRef<MDXEditorMethods>(null);
 
   const { setShowBack } = useDAO();
-  setShowBack(false);
 
   const isAlreadyEscaped = (text: string) => {
     return /\\[\\`*_{}\[\]()#+\-.!]/.test(text);
   };
+
+  useEffect(() => {
+    setShowBack(false);
+  }, []);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -77,7 +85,7 @@ const MarkdownEditor: React.FC<{
 
         if (documentId === '0' && typeof daoTemplate?.id === 'undefined') {
           setTitle('');
-          setLink('');
+          setLink(proposalURL);
           setPriority('medium');
           if (project === ALL_DOCS_FOLDER) {
             setProject('Unassigned');
@@ -209,14 +217,36 @@ const MarkdownEditor: React.FC<{
       setTitle('');
       setLink('');
       setIsSaving(false);
-      afterSave();
-      setShowBack(false);
+      if (backToProposals) {
+        setShowBack(true);
+        afterSave2();
+      }
+      else 
+      {
+        setShowBack(false);
+        afterSave();
+      }
+      
     } catch (error) {
       console.error('Error saving document:', error);
     } finally {
       setIsSaving(false);
     }
   };
+
+  // const handleClose2 = async () => {
+  //   try {
+  //     await handleSave('handleclose');
+  //     setCont('');
+  //     setTitle('');
+  //     setLink('');
+  //     setIsSaving(false);
+  //   } catch (error) {
+  //     console.error('Error saving document:', error);
+  //   } finally {
+  //     setIsSaving(false);
+  //   }
+  // };
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -248,17 +278,27 @@ const MarkdownEditor: React.FC<{
     <div id="main" className="w-full my-4 flex flex-grow  overflow-y-auto">
       {/* editor  */}
       {/* HACK button to close editor */}
-      <button
-        style={{ top: '10px' }}
-        className="text-xl px-2 absolute z-40 opacity-40"
-        onClick={handleClose}>
-        ←
-      </button>
-
+      {/* { 
+        backToProposals ? (      <button
+          style={{ top: '10px' }}
+          className="text-xl absolute z-40 opacity-40"
+          onClick={handleClose2}>
+          ←
+        </button>) 
+        : 
+         (      */}
+        <button
+          style={{ top: '10px' }}
+          className="text-xl px-2 absolute z-40 opacity-40"
+          onClick={handleClose}>
+          ←
+        </button>
+      {/*   )
+      } */}
       <div
         className="w-9/12 p-4 relative mb-2
-       dark:bg-stone-700 rounded-md shadow-md flex flex-col flex-grow overflow-auto
-      bg-white border-stone-200 dark:border-stone-700">
+          dark:bg-stone-700 rounded-md shadow-md flex flex-col flex-grow overflow-auto
+          bg-white border-stone-200 dark:border-stone-700">
         <input
           onChange={e => setTitle(e.target.value)}
           value={title}
