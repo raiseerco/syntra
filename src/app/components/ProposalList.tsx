@@ -17,6 +17,8 @@ import React from 'react';
 import { fetchSnapshotProposals } from '../../lib/proposals';
 import { useAuth } from './contexts/AuthContext';
 import { useMixpanel } from './contexts/mixpanelContext';
+import { IncomingMessage } from 'http';
+import { EyeIcon, MessageSquareIcon, ThumbsUpIcon } from 'lucide-react';
 
 interface ProposalListProps {
   daoAddress: string;
@@ -35,6 +37,7 @@ export const ProposalList = ({
   const [filteredProposals, setFilteredProposals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
+  const [proposalURL, setProposalURL] = useState('');
   const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
   const { trackEvent } = useMixpanel();
   const { user } = useAuth();
@@ -60,6 +63,7 @@ export const ProposalList = ({
     ref.current?.setMarkdown(p.body);
     setSelectedProposal(index);
     setOpenedProposal(p);
+    setProposalURL(p.link)
     console.log('ppp', p);
     trackEvent('open-proposal', {
       user: user?.wallet?.address,
@@ -102,7 +106,9 @@ export const ProposalList = ({
   };
 
   useEffect(() => {
-    if (daoAddress) fetchProposals();
+    if (daoAddress) {
+      fetchProposals();
+    }
   }, [daoAddress]);
 
   if (isLoading) return <Loader />;
@@ -165,7 +171,7 @@ export const ProposalList = ({
                 showMore ? 'h-auto' : 'h-64'
               } flex-col transition-all`}>
               {cont !== DEFAULT_EMPTY && (
-                <div className="flex justify-end w-full">
+                <div className="flex justify-end w-full mb-4">
                   <button
                     onClick={() => {
                       setDocumentId('0');
@@ -200,9 +206,23 @@ export const ProposalList = ({
                       Governance
                     </span>
                   </div>
-                  <span className="text-sm py-2 text-stone-500 dark:text-stone-400">
+                  <div className="text-sm py-2 text-stone-500 dark:text-stone-400">
                     Join the conversation about this proposal
-                  </span>
+                  </div>
+                  <div className='flex justify-between items-center mt-4 text-xs'>
+                    <div className='flex  items-center  gap-2'>
+                      <span className='bg-stone-400 p-1 rounded-full text-white'>DI</span>
+                      <span>Community</span>
+                    </div>
+                    <div className='flex gap-2'>
+                      <MessageSquareIcon width={16} height={16}/>
+                      <span>42 replies</span>
+                      <EyeIcon width={16} height={16}/>
+                      <span>1.2k views</span>
+                      <ThumbsUpIcon width={16} height={16}/>
+                      <span>89 likes</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="rounded-md shadow-sm bg-white dark:bg-stone-700 dark:text-stone-400 px-8 py-6 w-full">
@@ -302,13 +322,15 @@ export const ProposalList = ({
       {/* sliding editor */}
       {isEditorOpen && (
         <div
-          className=" px-4
+          className="px-2
                 bg-stone-100 dark:bg-stone-800 dark:text-stone-400
-                shadow-lg w-full  
+                shadow-lg w-full  h-full
                 transition-opacity duration-300 ease-in-out flex flex-col flex-grow overflow-auto
                 opacity-100">
           {/* {user?.wallet?.address && idDao && ( */}
           <CollaborativeEditor
+            backToProposals={true}
+            proposalURL={proposalURL}
             daoTemplate={daoTemplate}
             folder={`${idDao}/${user?.wallet?.address}`}
             documentId={documentId}
@@ -316,6 +338,9 @@ export const ProposalList = ({
             afterSave={() => {
               console.log('after save');
             }}
+            afterSave2={()=> {
+              console.log('aca')
+              setIsEditorOpen(false)}}
             projectName={selectedProject}
             // projects={projects.filter(
             //   (r: any) => r.project !== ALL_DOCS_FOLDER,

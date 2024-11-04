@@ -37,6 +37,7 @@ export async function GET(req: Request) {
             snapshot
             state
             author
+            link
             space {
               id
               name
@@ -350,6 +351,10 @@ export async function GET(req: Request) {
         // safes: i.creator.safes, // TBD
         // type: i.creator.type,
       },
+      // HACK: rebuilds the url using its own metadata
+      // https://www.tally.xyz/gov/arbitrum/proposal/83546392681388778220788629004310255202561156229718364611160970131196959784333?govId=eip155:42161:0x789fC99093B09aD01C34DC7251D0C89ce743e5a4
+
+      link: `https://www.tally.xyz/gov/${i.organization.slug}/proposal/${i.id}`, 
       snapshot: i.block.number,
       state: i.status,
       space: 'dummy',
