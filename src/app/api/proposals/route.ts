@@ -1,11 +1,22 @@
 'use server';
 
 import { NextResponse } from 'next/server';
+
 const SNAPSHOT_GRAPHQL_URL = 'https://hub.snapshot.org/graphql';
 const TALLY_GRAPHQL_URL = 'https://api.tally.xyz/query';
 const AGORA_URL =
   'https://vote.optimism.io/api/v1/proposals?limit=20&offset=0&filter=everything';
 const agoraToken = process.env.BAGORA; // ''; //searchParams.get('agoraToken');
+
+function weiToEther(wei: string | number): string {
+  const weiBigInt = BigInt(wei);
+  const ether = weiBigInt / BigInt(10 ** 18);
+  const etherString = ether.toString();
+  return (
+    parseFloat(etherString) +
+    parseFloat('0.' + String(weiBigInt % BigInt(10 ** 18)).padStart(18, '0'))
+  ).toString();
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -334,7 +345,10 @@ export async function GET(req: Request) {
       title: i.metadata.title,
       body: i.metadata.description,
       quorum: i.quorum,
-      choices: i.voteStats,
+      choices: i.voteStats.map((v: any) => ({
+        ...v,
+        votesCount: weiToEther(v.votesCount),
+      })),
       start: new Date(i.start.timestamp).getTime() / 1000,
       end: new Date(i.end.timestamp).getTime() / 1000,
       author: {

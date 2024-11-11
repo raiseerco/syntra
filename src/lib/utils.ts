@@ -15,6 +15,18 @@ export function shortAddress(address: string | undefined): string {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
+export function formatNumberShort(input: string): string {
+  const num = parseFloat(input);
+
+  if (num >= 1_000_000) {
+    return `${(num / 1_000_000).toFixed(1)}M`;
+  } else if (num >= 1_000) {
+    return `${(num / 1_000).toFixed(1)}K`;
+  } else {
+    return num.toString();
+  }
+}
+
 export function formatNumber(num: number | bigint): string {
   // Convert to BigInt if not already
   const bigNum = typeof num === 'bigint' ? num : BigInt(num);
@@ -365,7 +377,7 @@ export function getTimeUntil(targetEpoch: number): string {
   const currentTime = Math.floor(Date.now() / 1000);
   const timeDifference = targetEpoch - currentTime;
   if (timeDifference <= 0) {
-    return 'Finalized';
+    return 'Ended';
   }
 
   const daysRemaining = Math.floor(timeDifference / (60 * 60 * 24));

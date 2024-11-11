@@ -172,7 +172,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
 
   async function fetchDocuments() {
     try {
-      console.log('fetching documents')
+      console.log('fetching documents');
       setDaoTemplate(undefined);
       const docs = await fetchAllDocuments(
         `/documents/${idDao}/${user?.wallet?.address}`,
@@ -235,7 +235,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
       setProjects(nonZeroId);
       setSelectedProject(ALL_DOCS_FOLDER);
       setIsEditorOpen(false);
-      console.log('fetching ended.')
+      console.log('fetching ended.');
     } catch (error) {
       console.error('Failed to get documents:', error);
     }
@@ -354,7 +354,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
               {/* drafts  */}
               <button
                 onClick={async () => {
-                  await fetchDocuments()
+                  await fetchDocuments();
                   setIsDraftsOpen(true);
                   setIsResourcesOpen(false);
                   setIsCalendarOpen(false);
@@ -757,7 +757,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                 opacity-100">
             {user?.wallet?.address && idDao && (
               <CollaborativeEditor
-                afterSave2={()=>true}
+                afterSave2={() => true}
                 proposalURL={''}
                 backToProposals={false}
                 daoTemplate={daoTemplate}
