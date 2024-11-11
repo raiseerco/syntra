@@ -3,22 +3,23 @@
 import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
 
+import { EyeIcon, MessageSquareIcon, ThumbsUpIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
 import CollaborativeEditor from './CollaborativeEditor';
 import { ForwardRefEditor } from './ForwardRefEditor';
+import { IncomingMessage } from 'http';
 import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
 import { Pencil2Icon } from '@radix-ui/react-icons';
 import { ProposalCard } from './ui/ProposalCard';
 import { ProposalFilters } from './ui/ProposalFilters';
 import React from 'react';
-import { fetchSnapshotProposals } from '../../lib/proposals';
+import { fetchAllProposals } from '../../lib/proposals';
 import { useAuth } from './contexts/AuthContext';
+import { useDAO } from './contexts/DAOContext';
 import { useMixpanel } from './contexts/mixpanelContext';
-import { IncomingMessage } from 'http';
-import { EyeIcon, MessageSquareIcon, ThumbsUpIcon } from 'lucide-react';
 
 interface ProposalListProps {
   daoAddress: string;
@@ -38,6 +39,16 @@ export const ProposalList = ({
   const [isLoading, setIsLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const [proposalURL, setProposalURL] = useState('');
+  const {
+    // logo,
+    // color,
+    // setLogo,
+    // setColor,
+    // colorDark,
+    // setColorDark,
+    // daoAddress,
+  } = useDAO();
+
   const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
   const { trackEvent } = useMixpanel();
   const { user } = useAuth();
@@ -52,7 +63,7 @@ export const ProposalList = ({
     status: 'all',
   });
 
-  const [showClosed, setShowClosed] = useState(false);
+  const [showClosed, setShowClosed] = useState(true);
   const [cont, setCont] = useState(DEFAULT_EMPTY);
   const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [openedProposal, setOpenedProposal] = useState<any>();
@@ -63,7 +74,7 @@ export const ProposalList = ({
     ref.current?.setMarkdown(p.body);
     setSelectedProposal(index);
     setOpenedProposal(p);
-    setProposalURL(p.link)
+    setProposalURL(p.link);
     console.log('ppp', p);
     trackEvent('open-proposal', {
       user: user?.wallet?.address,
@@ -74,12 +85,13 @@ export const ProposalList = ({
   async function fetchProposals() {
     setIsLoading(true);
     try {
-      const tt = await fetchSnapshotProposals(daoAddress, tallyOrgId);
+      const tt = await fetchAllProposals(daoAddress, tallyOrgId);
       console.log('tt', tt);
       setBaseProposals(tt);
       setFilteredProposals(tt);
     } catch (err) {
       console.error('err ', err);
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -130,6 +142,7 @@ export const ProposalList = ({
             {/* proposals area  */}
             <div className="flex flex-col flex-grow overflow-auto mt-3 px-3 h-full mb-2 w-full">
               {filteredProposals &&
+                typeof filteredProposals !== 'undefined' &&
                 filteredProposals
                   ?.filter((p: any) => p.state === 'active')
                   .map((p: any, k: number) => (
@@ -209,17 +222,19 @@ export const ProposalList = ({
                   <div className="text-sm py-2 text-stone-500 dark:text-stone-400">
                     Join the conversation about this proposal
                   </div>
-                  <div className='flex justify-between items-center mt-4 text-xs'>
-                    <div className='flex  items-center  gap-2'>
-                      <span className='bg-stone-400 p-1 rounded-full text-white'>DI</span>
+                  <div className="flex justify-between items-center mt-4 text-xs">
+                    <div className="flex  items-center  gap-2">
+                      <span className="bg-stone-400 p-1 rounded-full text-white">
+                        DI
+                      </span>
                       <span>Community</span>
                     </div>
-                    <div className='flex gap-2'>
-                      <MessageSquareIcon width={16} height={16}/>
+                    <div className="flex gap-2">
+                      <MessageSquareIcon width={16} height={16} />
                       <span>42 replies</span>
-                      <EyeIcon width={16} height={16}/>
+                      <EyeIcon width={16} height={16} />
                       <span>1.2k views</span>
-                      <ThumbsUpIcon width={16} height={16}/>
+                      <ThumbsUpIcon width={16} height={16} />
                       <span>89 likes</span>
                     </div>
                   </div>
@@ -338,9 +353,10 @@ export const ProposalList = ({
             afterSave={() => {
               console.log('after save');
             }}
-            afterSave2={()=> {
-              console.log('aca')
-              setIsEditorOpen(false)}}
+            afterSave2={() => {
+              console.log('aca');
+              setIsEditorOpen(false);
+            }}
             projectName={selectedProject}
             // projects={projects.filter(
             //   (r: any) => r.project !== ALL_DOCS_FOLDER,

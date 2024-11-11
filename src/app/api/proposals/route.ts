@@ -1,15 +1,17 @@
-import { AuthProvider } from '../../components/contexts/AuthContext';
+'use server';
+
 import { NextResponse } from 'next/server';
-import { after } from 'node:test';
-import { chainConfig } from 'viem/zksync';
-import { title } from 'process';
 const SNAPSHOT_GRAPHQL_URL = 'https://hub.snapshot.org/graphql';
 const TALLY_GRAPHQL_URL = 'https://api.tally.xyz/query';
+const AGORA_URL =
+  'https://vote.optimism.io/api/v1/proposals?limit=20&offset=0&filter=everything';
+const agoraToken = process.env.BAGORA; // ''; //searchParams.get('agoraToken');
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const daoAddress = searchParams.get('daoAddress');
   const organizationId = searchParams.get('organizationId'); // tallyOrgId
+
   const moreValue = searchParams.get('moreValue');
 
   try {
@@ -327,11 +329,6 @@ export async function GET(req: Request) {
       resUserSnapshot.json(),
     ]);
 
-    // console.log('dataTally', dataTally.data.proposals.nodes[1]);
-
-    // console.log('dataUserSnapshot', dataUserSnapshot.data.users);
-
-    // console.log('dataSnapshot', dataSnapshot.data.proposals[1]);
     const dataTallyClipped = dataTally.data.proposals.nodes.map((i: any) => ({
       id: i.id,
       title: i.metadata.title,
@@ -354,7 +351,7 @@ export async function GET(req: Request) {
       // HACK: rebuilds the url using its own metadata
       // https://www.tally.xyz/gov/arbitrum/proposal/83546392681388778220788629004310255202561156229718364611160970131196959784333?govId=eip155:42161:0x789fC99093B09aD01C34DC7251D0C89ce743e5a4
 
-      link: `https://www.tally.xyz/gov/${i.organization.slug}/proposal/${i.id}`, 
+      link: `https://www.tally.xyz/gov/${i.organization.slug}/proposal/${i.id}`,
       snapshot: i.block.number,
       state: i.status,
       space: 'dummy',
@@ -366,30 +363,6 @@ export async function GET(req: Request) {
       const author = dataUserSnapshot.data.users.find((i: any) => i.id === id);
       return author;
     };
-
-    // this is the data from tally, and the destination format
-    // voteStats: [
-    //   {
-    //     type: 'for',
-    //     votesCount: '85944579175198098275816758',
-    //     votersCount: 5827,
-    //     percent: 84.90720528082699
-    //   },
-
-    // this is the data from snapshot, and the source format that need to be converted to tally format
-    // "choices": [
-    //     "Approve YIP-210",
-    //     "Do Not Approve"
-    //   ],
-    //   "scores": [
-    //     286653.5335327927,
-    //     0
-    //   ],
-    //   "scores_state": "final",
-    //   "scores_total": 286653.5335327927,
-    //   "scores_updated": 1682430127,
-
-    // create a new object with the same format as tally, keep in mind that choinces is an array with any number of choices
 
     const dataSnapshotClipped = dataSnapshot.data.proposals.map((i: any) => {
       const author = findAuthor(i.author);
@@ -415,19 +388,69 @@ export async function GET(req: Request) {
       };
     });
 
-    const data = {
-      tally: dataTallyClipped,
-      snapshot: dataSnapshotClipped,
-    };
+    // agora
+    const resAgora = await fetch(AGORA_URL, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // HACK: remove this when infrastructure is ready
+        Authorization: agoraToken as string,
+      },
+    });
 
-    const fullData = dataTallyClipped.concat(dataSnapshotClipped);
+    if (!resAgora.ok) {
+      console.log('resAgora???', resAgora);
+      return NextResponse.json(
+        { error: 'Failed to fetch proposals' },
+        { status: resAgora.status },
+      );
+    }
+
+    const dataAgora = await resAgora.json();
+    const clippedAgora = dataAgora.data.map((i: any) => ({
+      id: i.id,
+      title: i.markdowntitle,
+      body: i.description,
+      scores: [],
+      scores_state: 'not set',
+      scores_total: '',
+      scores_updated: '',
+      start: new Date(i.startTime).getTime() / 1000,
+      end: new Date(i.endTime).getTime() / 1000,
+      author: {
+        address: i.proposer,
+        picture: `https://cdn.stamp.fyi/avatar/eth:${i.proposer}`,
+      },
+      link: `https://vote.optimism.io/proposals/${i.id}`,
+      space: '',
+
+      state:
+        new Date(i.endTime).getTime() < new Date().getTime()
+          ? 'closed'
+          : 'active',
+      source: 'agora',
+    }));
+
+    const fullData = dataTallyClipped
+      .concat(dataSnapshotClipped)
+      .concat(clippedAgora);
 
     return NextResponse.json(fullData);
-  } catch (error) {
-    console.error('Error handling GET request:', error);
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
+  } catch (error: any) {
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        status: 500,
+        message: error.message,
+        statusText: error.message,
+      }),
+      {
+        status: 500,
+        statusText: error.message,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
     );
   }
 }

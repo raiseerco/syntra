@@ -66,7 +66,7 @@ export default function PlatformLayout({
     <ThemeProvider attribute="class" defaultTheme="system">
       <>
         <div>
-          <title>Welcome to Syntra</title>
+          <title>Syntra</title>
           <meta name="description" content="Seed" />
         </div>
         <div className="  ">
