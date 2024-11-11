@@ -3,20 +3,26 @@
 import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
 
-import { EyeIcon, MessageSquareIcon, ThumbsUpIcon } from 'lucide-react';
+import {
+  EyeIcon,
+  LinkIcon,
+  MessageSquareIcon,
+  ThumbsUpIcon,
+} from 'lucide-react';
+import { Link1Icon, Pencil2Icon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
 import CollaborativeEditor from './CollaborativeEditor';
 import { ForwardRefEditor } from './ForwardRefEditor';
-import { IncomingMessage } from 'http';
+import Link from 'next/link';
 import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
-import { Pencil2Icon } from '@radix-ui/react-icons';
 import { ProposalCard } from './ui/ProposalCard';
 import { ProposalFilters } from './ui/ProposalFilters';
 import React from 'react';
 import { fetchAllProposals } from '../../lib/proposals';
+import { formatNumberShort } from '../../lib/utils';
 import { useAuth } from './contexts/AuthContext';
 import { useDAO } from './contexts/DAOContext';
 import { useMixpanel } from './contexts/mixpanelContext';
@@ -65,11 +71,11 @@ export const ProposalList = ({
 
   const [showClosed, setShowClosed] = useState(true);
   const [cont, setCont] = useState(DEFAULT_EMPTY);
-  const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
+  const [selectedProposal, setSelectedProposal] = useState<string | null>(null);
   const [openedProposal, setOpenedProposal] = useState<any>();
   const ref = React.useRef<MDXEditorMethods>(null);
 
-  const openProposal = (p: any, index: number) => {
+  const openProposal = (p: any, index: string) => {
     setCont(p.body);
     ref.current?.setMarkdown(p.body);
     setSelectedProposal(index);
@@ -149,7 +155,7 @@ export const ProposalList = ({
                     <ProposalCard
                       key={k}
                       p={p}
-                      index={k}
+                      index={p.id}
                       openProposal={openProposal}
                       selectedProposal={selectedProposal}
                     />
@@ -184,17 +190,23 @@ export const ProposalList = ({
                 showMore ? 'h-auto' : 'h-64'
               } flex-col transition-all`}>
               {cont !== DEFAULT_EMPTY && (
-                <div className="flex justify-end w-full mb-4">
+                <div className="flex justify-end gap-2 w-full mb-4">
                   <button
                     onClick={() => {
                       setDocumentId('0');
                       setDaoTemplate('Write your proposal here');
                       setIsEditorOpen(true);
                     }}
-                    className="items-center rounded-md flex gap-1 px-2 py-1 text-xs border">
+                    className="items-center rounded-md flex gap-1 px-2 py-1 text-xs border border-stone-500">
                     <Pencil2Icon />
                     New draft
                   </button>
+                  <Link
+                    href={proposalURL}
+                    target="_blank"
+                    className="items-center rounded-md flex gap-1 px-2 py-1 text-xs border border-stone-500">
+                    <LinkIcon width={12} height={12} />
+                  </Link>
                 </div>
               )}
 
@@ -212,9 +224,13 @@ export const ProposalList = ({
 
             {cont !== DEFAULT_EMPTY && (
               <>
-                <div className="rounded-md shadow-sm bg-white dark:bg-stone-700 dark:text-stone-400 px-8 py-6 w-full">
+                <div className="rounded-md shadow-sm opacity-50 bg-white dark:bg-stone-700 dark:text-stone-400 px-8 py-6 w-full">
                   <div className="flex w-full items-center justify-between">
-                    <span className="text-lg font-semibold">Discussion</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-lg font-semibold">Discussion</span>
+                      <small>- Coming soon</small>
+                    </div>
+
                     <span className="bg-stone-100 dark:bg-stone-600 rounded-md text-xs px-2 py-1">
                       Governance
                     </span>
@@ -280,40 +296,45 @@ export const ProposalList = ({
                         className="w-full space-y-4 p-4">
                         <div className="flex flex-col gap-4 text-sm text-stone-600 dark:text-stone-400">
                           {openedProposal &&
-                            openedProposal.choices.map((c: any, k: number) => (
-                              <div key={k} className="flex flex-col gap-1">
-                                <div className="flex justify-between">
-                                  <span className="text-stone-700 dark:text-stone-300">
-                                    {c.type}
-                                  </span>
+                            openedProposal.choices
+                              .sort(
+                                (a: any, b: any) => b.votesCount - a.votesCount,
+                              )
+                              .map((c: any, k: number) => (
+                                <div key={k} className="flex flex-col gap-1">
+                                  <div className="flex justify-between">
+                                    <span className="text-stone-700 dark:text-stone-300">
+                                      {c.type}
+                                    </span>
 
-                                  <span className="text-stone-700 dark:text-stone-300">
-                                    {/* FIXME  */}
-                                    {c.votesCount} ({c.percent.toFixed(2)}
-                                    %)
-                                  </span>
+                                    <span className="text-stone-700 dark:text-stone-300">
+                                      {/* FIXME  */}
+                                      {formatNumberShort(c.votesCount)} (
+                                      {c.percent.toFixed(2)}
+                                      %)
+                                    </span>
+                                  </div>
+                                  <Progress.Root
+                                    className="relative overflow-hidden bg-stone-300 dark:bg-stone-600 rounded-full w-full h-2"
+                                    value={c.percent}>
+                                    <Progress.Indicator
+                                      className="bg-stone-900 dark:bg-black h-full rounded-full transition-transform"
+                                      style={{
+                                        transform: `translateX(-${
+                                          100 - c.percent
+                                        }%)`,
+                                      }}
+                                    />
+                                  </Progress.Root>
                                 </div>
-                                <Progress.Root
-                                  className="relative overflow-hidden bg-stone-300 dark:bg-stone-600 rounded-full w-full h-2"
-                                  value={c.percent}>
-                                  <Progress.Indicator
-                                    className="bg-stone-900 dark:bg-black h-full rounded-full transition-transform"
-                                    style={{
-                                      transform: `translateX(-${
-                                        100 - c.percent
-                                      }%)`,
-                                    }}
-                                  />
-                                </Progress.Root>
-                              </div>
-                            ))}
+                              ))}
                         </div>
                       </Tabs.Content>
 
                       <Tabs.Content
                         value="tab2"
                         className="w-full p-4 h-40 text-center">
-                        <p className="text-lg text-stone-700 dark:text-stone-300">
+                        <p className="text-lg opacity-30 text-stone-700 dark:text-stone-300">
                           Coming soon...
                         </p>
                       </Tabs.Content>
@@ -321,7 +342,7 @@ export const ProposalList = ({
                       <Tabs.Content
                         value="tab3"
                         className="w-full p-4 h-40 text-center">
-                        <p className="text-lg text-stone-700 dark:text-stone-300">
+                        <p className="text-lg opacity-30 text-stone-700 dark:text-stone-300">
                           More coming soon...
                         </p>
                       </Tabs.Content>
