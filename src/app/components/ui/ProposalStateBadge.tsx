@@ -9,7 +9,9 @@ export const ProposalStateBadge = ({ state }: { state: string }) => {
       className={`rounded-xl text-xs px-3 py-1 ${
         stateClasses[state] || stateClasses.default
       }`}>
-      {state.charAt(0).toUpperCase() + state.slice(1)}
+      {state &&
+        state.length > 0 &&
+        state.charAt(0).toUpperCase() + state.slice(1)}
     </span>
   );
 };

@@ -18,12 +18,12 @@ export const ProposalDetails = ({ p }: any) => (
             width={12}
             height={12}
           />
-          Off-Chain
+          Off-Chain ({p.source})
         </>
       ) : (
         <>
           <LinkIcon className="text-blue-600" width={12} height={12} />
-          On-Chain
+          On-Chain ({p.source})
         </>
       )}
     </div>
