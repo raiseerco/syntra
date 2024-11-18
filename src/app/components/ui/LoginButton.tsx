@@ -2,35 +2,23 @@
 
 import { BellIcon, ChevronDown, HelpCircleIcon, User2Icon } from 'lucide-react';
 import { ExitIcon, GearIcon } from '@radix-ui/react-icons';
-import React, { use, useEffect, useState } from 'react';
-import { createSiweMessage, getNonce } from '../../../lib/agora';
-import { usePrivy, useSignTypedData } from '@privy-io/react-auth';
+import React, { useEffect, useState } from 'react';
 
 import { Button } from './Button';
 import Chip from './Chip';
 import Link from 'next/link';
 import { shortAddress } from '../../../lib/utils';
-import { useAuth } from '../contexts/AuthContext';
 import { useDAO } from '../contexts/DAOContext';
 import { useMixpanel } from '../contexts/mixpanelContext';
+import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 
 export const LoginButton: React.FC = () => {
-  const { firebaseUser } = useAuth();
-  const { login, logout, user, authenticated, getAccessToken } = usePrivy();
-  const { signTypedData } = useSignTypedData();
+  const { login, logout, user, authenticated } = usePrivy();
   const [showMenu, setShowMenu] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const { trackEvent } = useMixpanel();
-  const {
-    logo,
-    color,
-    setLogo,
-    setColor,
-    colorDark,
-    setColorDark,
-    daoAddress,
-  } = useDAO();
+  const { logo, color, setLogo, setColor, colorDark, setColorDark } = useDAO();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -61,56 +49,6 @@ export const LoginButton: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    async function authWithAgora(address: string) {
-      try {
-        const nonce = await getNonce();
-
-        const statement = 'Log in to Agora API';
-        const domain = window.location.host;
-        const uri = window.location.origin;
-
-        const preparedMessage = await createSiweMessage(
-          domain,
-          uri,
-          address,
-          statement,
-          nonce,
-        );
-
-        const signature = await window.ethereum.request({
-          method: 'personal_sign',
-          params: [preparedMessage, address],
-        });
-
-        console.log('signature', signature);
-
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_AGORA_URL}/auth/verify`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              message: preparedMessage,
-              signature,
-              nonce,
-            }),
-          },
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP status error ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error('Error en la autenticación:', error);
-      }
-    }
-
     const aa = user?.wallet?.address;
     console.log('aa:', aa);
     if (!aa) {

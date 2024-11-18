@@ -7,10 +7,10 @@ export const AuthorPill = ({ authorObject }: any) => {
     <div className="flex gap-3 items-center">
       {/* picture */}
       <Avatar className="h-6 w-6">
-        <AvatarImage src={authorObject.picture} alt={authorObject.name} />
-        <AvatarFallback>{authorObject.name}</AvatarFallback>
+        <AvatarImage src={authorObject?.picture} alt={authorObject?.name} />
+        <AvatarFallback>{authorObject?.name}</AvatarFallback>
       </Avatar>
-      <span>{shortAddress(authorObject.ens || authorObject.address)}</span>
+      <span>{shortAddress(authorObject?.ens || authorObject?.address)}</span>
     </div>
   );
 };

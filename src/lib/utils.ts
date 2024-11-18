@@ -1,6 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-// import { parseUnits, formatUnits } from "viem";
 import { useRef, useCallback, useEffect } from 'react';
 
 export function cn(...inputs: ClassValue[]) {
@@ -275,42 +274,19 @@ export async function fetchAllDocuments(pathName: string) {
     return data.documents;
   } catch (error) {
     console.error(`Error fetching documents from folder ${pathName}:`, error);
-    return []; // Devuelve un array vacío en caso de error
+    return [];
   }
 }
 
-// export const preprocessMarkdown = (content: string): string => {
-//   // Replace single newlines with double newlines, except within code blocks
-//   const codeBlockRegex = /```[\s\S]*?```/g;
-//   const codeBlocks: string[] = [];
-//   let processedContent = content.replace(codeBlockRegex, (match) => {
-//     codeBlocks.push(match);
-//     return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
-//   });
-
-//   processedContent = processedContent.replace(/(?<!\n)\n(?!\n)/g, "\n\n");
-
-//   // Restore code blocks
-//   processedContent = processedContent.replace(
-//     /__CODE_BLOCK_(\d+)__/g,
-//     (_, index) => codeBlocks[parseInt(index)]
-//   );
-
-//   return processedContent;
-// };
-
 export const preprocessMarkdown = (content: string): string => {
-  // Regex para los bloques de código
   const codeBlockRegex = /```[\s\S]*?```/g;
   const codeBlocks: string[] = [];
 
-  // Reemplaza los bloques de código temporales
   let processedContent = content.replace(codeBlockRegex, match => {
-    codeBlocks.push(match);
+    codeBlocks.push(match); //.replace(/\r\n/g, ' ');
     return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
   });
 
-  // Agregar doble salto de línea después de encabezados, listas, y otras etiquetas importantes
   processedContent = processedContent.replace(
     /(#+\s[^\n]+)(?!\n\n)/g,
     '$1\n\n',
@@ -318,17 +294,14 @@ export const preprocessMarkdown = (content: string): string => {
   processedContent = processedContent.replace(
     /(\*\*[^\*]+\*\*)(?!\n\n)/g,
     '$1\n\n',
-  ); // Para negritas
+  );
   processedContent = processedContent.replace(/(_[^\_]+_)(?!\n\n)/g, '$1\n\n'); // Para cursivas
   processedContent = processedContent.replace(
     /(\*\s[^\n]+)(?!\n\n)/g,
     '$1\n\n',
-  ); // Para listas
-
-  // Reemplaza líneas simples con dobles líneas, excepto dentro de los bloques de código
+  );
   processedContent = processedContent.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
 
-  // Restaura los bloques de código
   processedContent = processedContent.replace(
     /__CODE_BLOCK_(\d+)__/g,
     (_, index) => codeBlocks[parseInt(index)],
@@ -338,15 +311,8 @@ export const preprocessMarkdown = (content: string): string => {
 };
 
 export function escapeMD(text: string) {
-  // Escapar caracteres especiales de Markdown
   const escapedText = text.replace(/[\\`*_{}\[\]()#+\-.!]/g, '\\$&');
-  // const singleLineBreakText = escapedText.replace(/\n{2,}/g, '\n');
-
-  // Reemplazar CR LF por doble espacio + nueva línea para Markdown
-
-  // string.replace(/\n(?!\n)/g, '')
-
-  const formattedText = escapedText; //.replace(/\r\n/g, ' ');
+  const formattedText = escapedText;
 
   return formattedText;
 }

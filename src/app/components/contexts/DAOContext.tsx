@@ -17,8 +17,6 @@ interface DAOContextProps {
   setShowBack: (showBack: boolean) => void;
   daoAddress: string;
   setDaoAddress: (daoAddress: string) => void;
-  tallyOrgId: string;
-  setTallyOrgId: (tallyOrgId: string) => void;
 }
 
 const DAOContext = createContext<DAOContextProps | undefined>(undefined);
@@ -39,7 +37,6 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
   const [showLoader, setShowLoader] = useState<boolean>(false);
   const [showBack, setShowBack] = useState<boolean>(false);
   const [daoAddress, setDaoAddress] = useState<string>('');
-  const [tallyOrgId, setTallyOrgId] = useState<string>('');
 
   return (
     <DAOContext.Provider
@@ -58,8 +55,6 @@ export const DAOProvider = ({ children }: { children: ReactNode }) => {
         setShowBack,
         daoAddress,
         setDaoAddress,
-        tallyOrgId,
-        setTallyOrgId,
       }}>
       {children}
     </DAOContext.Provider>

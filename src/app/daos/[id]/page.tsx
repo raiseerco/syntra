@@ -66,18 +66,8 @@ export default function DaoPage({ params }: { params: { id: string } }) {
   const [isProjectsCollapsed, setIsProjectsCollapsed] = useState(false);
   const [isProjectsMinimized, setIsProjectsMinimized] = useState(false);
   const { trackEvent } = useMixpanel();
-  const {
-    setLogo,
-    setColor,
-    setColorDark,
-    setName,
-    name,
-    setShowBack,
-    daoAddress,
-    setDaoAddress,
-    tallyOrgId,
-    setTallyOrgId,
-  } = useDAO();
+  const { setLogo, setColor, setColorDark, setName, name, setShowBack } =
+    useDAO();
 
   // const { wallets } = useWallets();
 
@@ -268,8 +258,6 @@ export default function DaoPage({ params }: { params: { id: string } }) {
         setLogo(docs?.settings[0].logoSVG || '');
         setColor(docs?.settings[0].color || 'stone-100');
         setColorDark(docs?.settings[0].colorDark || 'stone-900');
-        setDaoAddress(docs?.settings[0].daoAddress || ''); // FIXME THIS WILL BE BROKEN WITH TALLY
-        setTallyOrgId(docs?.settings[0].tallyOrgId || '');
         setLoading(false);
       } catch (err) {
         setError('Error fetching documents ');
@@ -439,11 +427,7 @@ export default function DaoPage({ params }: { params: { id: string } }) {
                   transition-all duration-300 ease-in-out
                 ${isProposalsOpen ? 'max-h-full' : 'max-h-0'}  `}>
                 <div className="pb-2 h-full">
-                  <ProposalList
-                    idDao={idDao}
-                    daoAddress={daoAddress}
-                    tallyOrgId={tallyOrgId}
-                  />
+                  <ProposalList idDao={idDao} />
                 </div>
               </div>
 
