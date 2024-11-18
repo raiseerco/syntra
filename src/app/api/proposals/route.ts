@@ -11,9 +11,9 @@ export async function GET(req: Request) {
 
   try {
     const proposalsCollection = db.collection(`DAOS/${daoName}/proposals`);
-    const snapshot = await proposalsCollection.get();
+    const items = await proposalsCollection.get();
 
-    const proposals = snapshot.docs.map(doc => ({
+    const proposals = items.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));

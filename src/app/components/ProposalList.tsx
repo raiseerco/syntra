@@ -27,8 +27,6 @@ import { useAuth } from './contexts/AuthContext';
 import { useMixpanel } from './contexts/mixpanelContext';
 
 interface ProposalListProps {
-  daoAddress: string;
-  tallyOrgId: string;
   idDao: string;
 }
 
