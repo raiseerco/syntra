@@ -1,19 +1,15 @@
-export const fetchAllProposals = async (
-  daoAddress: string,
-  tallyOrgId: string,
-) => {
+export const fetchAllProposals = async (daoName: string) => {
   try {
-    const response = await fetch(
-      `/api/proposals?daoAddress=${daoAddress}&organizationId=${tallyOrgId}`,
-    );
+    const response = await fetch(`/api/proposals?daoName=${daoName}`);
     if (!response.ok) {
       console.log('responseeee', response);
       throw Error(`HTTP status error: ${response.statusText}`);
     }
 
-    console.log('responseOK', response);
     const data = await response.json();
-    return data;
+    console.log('responseOK', data);
+
+    return data.data;
   } catch (error) {
     console.error('---> Error fetching proposals:', error);
     throw error;

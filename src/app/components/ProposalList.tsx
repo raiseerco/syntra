@@ -9,7 +9,6 @@ import {
   MessageSquareIcon,
   ThumbsUpIcon,
 } from 'lucide-react';
-import { Link1Icon, Pencil2Icon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
@@ -18,13 +17,13 @@ import { ForwardRefEditor } from './ForwardRefEditor';
 import Link from 'next/link';
 import Loader from './ui/Loader';
 import { MDXEditorMethods } from 'mdx-float';
+import { Pencil2Icon } from '@radix-ui/react-icons';
 import { ProposalCard } from './ui/ProposalCard';
 import { ProposalFilters } from './ui/ProposalFilters';
 import React from 'react';
 import { fetchAllProposals } from '../../lib/proposals';
 import { formatNumberShort } from '../../lib/utils';
 import { useAuth } from './contexts/AuthContext';
-import { useDAO } from './contexts/DAOContext';
 import { useMixpanel } from './contexts/mixpanelContext';
 
 interface ProposalListProps {
@@ -35,25 +34,12 @@ interface ProposalListProps {
 
 const DEFAULT_EMPTY = '← Select a proposal to view';
 
-export const ProposalList = ({
-  daoAddress,
-  tallyOrgId,
-  idDao,
-}: ProposalListProps) => {
+export const ProposalList = ({ idDao }: ProposalListProps) => {
   const [baseProposals, setBaseProposals] = useState([]);
   const [filteredProposals, setFilteredProposals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showMore, setShowMore] = useState(false);
   const [proposalURL, setProposalURL] = useState('');
-  const {
-    // logo,
-    // color,
-    // setLogo,
-    // setColor,
-    // colorDark,
-    // setColorDark,
-    // daoAddress,
-  } = useDAO();
 
   const [selectedProject, setSelectedProject] = useState(ALL_DOCS_FOLDER);
   const { trackEvent } = useMixpanel();
@@ -91,7 +77,7 @@ export const ProposalList = ({
   async function fetchProposals() {
     setIsLoading(true);
     try {
-      const tt = await fetchAllProposals(daoAddress, tallyOrgId);
+      const tt = await fetchAllProposals(idDao);
       console.log('tt', tt);
       setBaseProposals(tt);
       setFilteredProposals(tt);
@@ -124,10 +110,10 @@ export const ProposalList = ({
   };
 
   useEffect(() => {
-    if (daoAddress) {
+    if (idDao) {
       fetchProposals();
     }
-  }, [daoAddress]);
+  }, [idDao]);
 
   if (isLoading) return <Loader />;
 
@@ -310,7 +296,7 @@ export const ProposalList = ({
                                     <span className="text-stone-700 dark:text-stone-300">
                                       {/* FIXME  */}
                                       {formatNumberShort(c.votesCount)} (
-                                      {c.percent.toFixed(2)}
+                                      {c.percent?.toFixed(2)}
                                       %)
                                     </span>
                                   </div>
