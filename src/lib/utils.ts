@@ -369,3 +369,14 @@ export function parseIPFS(urlIPFS: string) {
   const ipfsWithProtocol = `https://ipfs.io/ipfs/${ipfs}`;
   return ipfsWithProtocol;
 }
+
+export function escapeMDSymbols(text: string): string {
+  return text.replace(/<([^>]+)>/g, (match, url) => {
+    try {
+      const urlObj = new URL(url);
+      return `[${urlObj.href}](${urlObj.href})`;
+    } catch {
+      return match;
+    }
+  });
+}
