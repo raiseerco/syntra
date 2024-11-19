@@ -4,11 +4,13 @@ import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
 
 import {
+  ExternalLinkIcon,
   EyeIcon,
   LinkIcon,
   MessageSquareIcon,
   ThumbsUpIcon,
 } from 'lucide-react';
+import { escapeMDSymbols, formatNumberShort } from '../../lib/utils';
 import { useEffect, useState } from 'react';
 
 import { ALL_DOCS_FOLDER } from '../../lib/constants';
@@ -22,7 +24,6 @@ import { ProposalCard } from './ui/ProposalCard';
 import { ProposalFilters } from './ui/ProposalFilters';
 import React from 'react';
 import { fetchAllProposals } from '../../lib/proposals';
-import { formatNumberShort } from '../../lib/utils';
 import { useAuth } from './contexts/AuthContext';
 import { useMixpanel } from './contexts/mixpanelContext';
 
@@ -60,8 +61,9 @@ export const ProposalList = ({ idDao }: ProposalListProps) => {
   const ref = React.useRef<MDXEditorMethods>(null);
 
   const openProposal = (p: any, index: string) => {
-    setCont(p.body);
-    ref.current?.setMarkdown(p.body);
+    const escapedBody = escapeMDSymbols(p.body);
+    setCont(escapedBody);
+    ref.current?.setMarkdown(escapedBody);
     setSelectedProposal(index);
     setOpenedProposal(p);
     setProposalURL(p.link);
@@ -189,7 +191,7 @@ export const ProposalList = ({ idDao }: ProposalListProps) => {
                     href={proposalURL}
                     target="_blank"
                     className="items-center rounded-md flex gap-1 px-2 py-1 text-xs border border-stone-500">
-                    <LinkIcon width={12} height={12} />
+                    <ExternalLinkIcon width={16} height={16} />
                   </Link>
                 </div>
               )}

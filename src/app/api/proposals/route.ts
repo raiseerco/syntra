@@ -17,7 +17,9 @@ export async function GET(req: Request) {
       ...doc.data(),
     }));
 
-    return NextResponse.json({ ok: true, data: proposals });
+    const sortedProposals = proposals.sort((a: any, b: any) => b.end - a.end);
+
+    return NextResponse.json({ ok: true, data: sortedProposals });
   } catch (error: any) {
     return new Response(
       JSON.stringify({
