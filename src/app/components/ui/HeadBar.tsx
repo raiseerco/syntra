@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { ArrowLeftIcon } from 'lucide-react';
 import { BlankLink } from '../BlankLink';
 import Loader from './Loader';
 import { LoginButton } from './LoginButton';
@@ -66,7 +67,7 @@ export const HeadBar = ({ showDropdown = false }: HeadBarProps) => {
             <span className="flex gap-2 dark:text-stone-300 items-center">
               {id?.length > 0 && showBack && (
                 <BlankLink className="text-xl opacity-40" href={'/dao-manager'}>
-                  ←
+                  <ArrowLeftIcon width={16} height={16} />
                 </BlankLink>
               )}
             </span>
