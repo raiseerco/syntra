@@ -4,9 +4,9 @@ import * as Progress from '@radix-ui/react-progress';
 import * as Tabs from '@radix-ui/react-tabs';
 
 import {
+  ArrowRightIcon,
   ExternalLinkIcon,
   EyeIcon,
-  LinkIcon,
   MessageSquareIcon,
   ThumbsUpIcon,
 } from 'lucide-react';
@@ -31,7 +31,7 @@ interface ProposalListProps {
   idDao: string;
 }
 
-const DEFAULT_EMPTY = '← Select a proposal to view';
+const DEFAULT_EMPTY = 'Select a proposal to view';
 
 export const ProposalList = ({ idDao }: ProposalListProps) => {
   const [baseProposals, setBaseProposals] = useState([]);

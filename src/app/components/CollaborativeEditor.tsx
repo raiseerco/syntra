@@ -2,6 +2,7 @@
 
 import '../../../src/app/EditorStyle.css';
 
+import { ArrowLeft, ArrowLeftIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import {
   escapeMD,
@@ -18,8 +19,8 @@ import MetadataBar from './MetadataBar';
 import { useDAO } from './contexts/DAOContext';
 
 const MarkdownEditor: React.FC<{
-  backToProposals:boolean;
-  proposalURL:string;
+  backToProposals: boolean;
+  proposalURL: string;
   daoTemplate: any;
   folder: string;
   documentId: string;
@@ -220,13 +221,10 @@ const MarkdownEditor: React.FC<{
       if (backToProposals) {
         setShowBack(true);
         afterSave2();
-      }
-      else 
-      {
+      } else {
         setShowBack(false);
         afterSave();
       }
-      
     } catch (error) {
       console.error('Error saving document:', error);
     } finally {
@@ -283,16 +281,17 @@ const MarkdownEditor: React.FC<{
           style={{ top: '10px' }}
           className="text-xl absolute z-40 opacity-40"
           onClick={handleClose2}>
-          ←
+                         <ArrowLeftIcon width={16} height={16} />
+
         </button>) 
         : 
          (      */}
-        <button
-          style={{ top: '10px' }}
-          className="text-xl px-2 absolute z-40 opacity-40"
-          onClick={handleClose}>
-          ←
-        </button>
+      <button
+        style={{ top: '16px' }}
+        className="text-xl px-2 absolute z-40 opacity-50"
+        onClick={handleClose}>
+        <ArrowLeftIcon width={16} height={16} />
+      </button>
       {/*   )
       } */}
       <div
