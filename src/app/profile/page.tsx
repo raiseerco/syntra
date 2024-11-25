@@ -1,7 +1,11 @@
 'use client';
 
+import AvatarProfile from '../components/ui/AvatarProfile';
+import { Button } from '../components/ui/Button';
+import Chip from '../components/ui/Chip';
 import PlatformLayout from '../layouts/platformLayout';
 import { getDocument } from '../../lib/firestore';
+import { shortAddress } from '../../lib/utils';
 import { useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 
@@ -21,15 +25,16 @@ export default function Profile() {
             }}
             className="min-h-[25vh] rounded-xl"></div>
           <div className="flex items-center justify-between">
-            <div className="flex max-w-[50%] flex-col">
-              {/* <ImageProxied
-                className="-mt-16 ml-4 h-32 w-32 rounded-full border-4 border-white object-cover"
-                category="profile"
-                height={144}
-                width={144}
-                src={getPictureUrl(lensProfile)}
-                alt="avatar"
-              /> */}
+            <div className="flexd max-w-[50%] flex-col">
+              <div className="rounded-xl pl-2 text-xs font-mono pr-4 z-20 dark:text-stone-300">
+                {/* <Chip text={shortAddress(user?.wallet?.address)} /> */}
+                <AvatarProfile
+                  address={
+                    user?.wallet?.address ||
+                    'https://avatars.githubusercontent.com/u/56138448?s=52&v=4'
+                  }></AvatarProfile>
+              </div>
+
               <div className="mt-2 flex items-center">
                 <span className="mb-1 mr-1 text-lg font-bold">
                   {user?.wallet?.address}
@@ -67,14 +72,14 @@ export default function Profile() {
               />
             </div>
             <div className="flex w-full flex-col gap-2">
-              Display name
+              Email
               <input
                 className="py-2 px-3 w-full
             placeholder:dark:text-stone-600 
             placeholder:text-stone-300
             bg-white dark:bg-stone-700
             outline-none rounded-sm"
-                placeholder="Enter your display name..."
+                placeholder="Enter your email..."
                 type="text"
               />
             </div>
@@ -88,6 +93,18 @@ export default function Profile() {
             placeholder:text-stone-300
             bg-white dark:bg-stone-700
             outline-none rounded-sm"
+                type="text"
+              />
+            </div>
+            <div className="flex w-full flex-col gap-2">
+              Display name
+              <input
+                className="py-2 px-3 w-full
+            placeholder:dark:text-stone-600 
+            placeholder:text-stone-300
+            bg-white dark:bg-stone-700
+            outline-none rounded-sm"
+                placeholder="Enter your display name..."
                 type="text"
               />
             </div>

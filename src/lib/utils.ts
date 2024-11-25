@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useRef, useCallback, useEffect } from 'react';
+import blockies from 'ethereum-blockies';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -379,4 +380,20 @@ export function escapeMDSymbols(text: string): string {
       return match;
     }
   });
+}
+
+export function setBlockie(canvasRef: any, text: string) {
+  const cleanedText = text.trim().toLowerCase();
+  const blockie = blockies.create({
+    seed: cleanedText,
+    color: '#006300',
+    bgcolor: '#ffffff',
+    size: 8,
+    scale: 4,
+  });
+  const context = canvasRef.current.getContext('2d');
+  if (context) {
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // cleans
+    context.drawImage(blockie, 0, 0, 26, 26);
+  }
 }
