@@ -3,14 +3,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { setBlockie, shortAddress } from '../../../lib/utils';
 
-import Chip from './Chip';
-import Image from 'next/image';
-
-interface AvaatarProfileProps {
+interface AvatarProfileProps {
   address: string;
 }
 
-const AvatarProfile: React.FC<AvaatarProfileProps> = ({ address }) => {
+const AvatarProfile: React.FC<AvatarProfileProps> = ({ address }) => {
   // fetch data from firestore using the address, if not found, return the blockies
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,7 +46,7 @@ const AvatarProfile: React.FC<AvaatarProfileProps> = ({ address }) => {
       {user ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          className="rounded-full w-16 h-16 object-cover"
+          className="rounded-full border-2 border-stone-400 w-16 h-16 object-cover"
           src={user?.profileImage}
           alt="profile"
         />

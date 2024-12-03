@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
 import { firebaseConfig } from '../../../lib/firebaseConfig';
+import formidable from 'formidable';
 import { getDatabase } from 'firebase/database';
 import { getUser } from '../../../lib/firestore';
 import { initializeApp } from 'firebase/app';
+// import { uploadToIPFS, uploadToFirebaseStorage } from './uploadHandlers';
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+
+const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export async function GET(req: Request) {
   try {
@@ -104,3 +112,60 @@ export async function GET(req: Request) {
 //     );
 //   }
 // }
+
+export async function POST(req: Request) {
+  const form = formidable({ multiples: true });
+  return new Promise((resolve, reject) => {
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        console.error('Error parsing form:', err);
+        return reject(
+          NextResponse.json({ error: 'Error parsing form' }, { status: 400 }),
+        );
+      }
+
+      try {
+        const profile = JSON.parse(fields.profile as string);
+        const avatar = files.avatar?.[0]; // Archivo del avatar
+        const cover = files.cover?.[0]; // Archivo de la portada
+
+        let avatarUrl = null;
+        let coverUrl = null;
+
+        if (avatar) {
+          // Sube el avatar a IPFS o Firebase
+          avatarUrl =
+            (await uploadToIPFS(avatar.filepath)) ||
+            (await uploadToFirebaseStorage(avatar.filepath, 'avatars'));
+        }
+
+        if (cover) {
+          // Sube la portada a IPFS o Firebase
+          coverUrl =
+            (await uploadToIPFS(cover.filepath)) ||
+            (await uploadToFirebaseStorage(cover.filepath, 'covers'));
+        }
+
+        // Combina las URLs subidas con el perfil
+        const updatedProfile = { ...profile, avatarUrl, coverUrl };
+
+        console.log('Updated Profile:', updatedProfile);
+
+        resolve(
+          NextResponse.json(
+            { success: true, data: updatedProfile },
+            { status: 200 },
+          ),
+        );
+      } catch (error) {
+        console.error('Error processing request:', error);
+        reject(
+          NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 },
+          ),
+        );
+      }
+    });
+  });
+}
