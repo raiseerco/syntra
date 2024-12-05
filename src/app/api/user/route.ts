@@ -1,19 +1,125 @@
+import { IncomingMessage } from 'http';
 import { NextResponse } from 'next/server';
-import { firebaseConfig } from '../../../lib/firebaseConfig';
+import { Readable } from 'stream';
 import formidable from 'formidable';
-import { getDatabase } from 'firebase/database';
+import { promises as fs } from 'fs';
 import { getUser } from '../../../lib/firestore';
-import { initializeApp } from 'firebase/app';
-// import { uploadToIPFS, uploadToFirebaseStorage } from './uploadHandlers';
+import path from 'path';
+import { uploadToFirebaseStorage } from '../../../lib/storageFirebase';
+import { uploadToPinata } from '../../../lib/storageIPFSPinata';
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
-
-const config = {
+export const config = {
   api: {
     bodyParser: false,
   },
 };
+
+async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let done = false;
+
+  while (!done) {
+    const { value, done: readerDone } = await reader.read();
+    if (value) chunks.push(value);
+    done = readerDone;
+  }
+
+  return Buffer.concat(chunks);
+}
+
+async function convertNextRequestToIncomingMessage(
+  req: Request,
+): Promise<IncomingMessage> {
+  const bodyBuffer = await streamToBuffer(req.body!);
+
+  const readable = new Readable();
+  readable._read = () => {};
+  readable.push(bodyBuffer);
+  readable.push(null);
+
+  const incomingMessage = readable as IncomingMessage;
+  incomingMessage.headers = Object.fromEntries(req.headers.entries());
+  incomingMessage.method = req.method || 'GET';
+  incomingMessage.url = req.url || '';
+
+  return incomingMessage;
+}
+
+export async function POST(req: Request) {
+  const form = formidable({ multiples: true });
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const incomingMessage = await convertNextRequestToIncomingMessage(req);
+
+      form.parse(incomingMessage, async (err, fields, files) => {
+        if (err) {
+          console.error('Error parsing form:', err);
+          return reject(
+            NextResponse.json({ error: 'Error parsing form' }, { status: 400 }),
+          );
+        }
+
+        try {
+          const profile = JSON.parse(
+            Array.isArray(fields.profile)
+              ? fields.profile[0]
+              : fields.profile || '{}',
+          );
+          const avatar = files.avatar?.[0];
+          const cover = files.cover?.[0];
+
+          let avatarUrl = null;
+          let coverUrl = null;
+
+          const readFileAsBase64 = async (filepath: string) => {
+            const fileBuffer = await fs.readFile(filepath);
+            return fileBuffer.toString('base64');
+          };
+
+          if (avatar) {
+            const avatarContent = await readFileAsBase64(avatar.filepath);
+            const avatarFileName = path.basename(avatar.filepath);
+            avatarUrl =
+              (await uploadToPinata(avatarFileName, avatarContent)).cid ||
+              (await uploadToFirebaseStorage(avatar.filepath, 'avatars'));
+          }
+
+          if (cover) {
+            const coverContent = await readFileAsBase64(cover.filepath);
+            const coverFileName = path.basename(cover.filepath);
+            coverUrl =
+              (await uploadToPinata(coverFileName, coverContent)).cid ||
+              (await uploadToFirebaseStorage(cover.filepath, 'covers'));
+          }
+
+          const updatedProfile = { ...profile, avatarUrl, coverUrl };
+
+          resolve(
+            NextResponse.json(
+              { success: true, data: updatedProfile },
+              { status: 200 },
+            ),
+          );
+        } catch (error) {
+          console.error('Error processing request:', error);
+          reject(
+            NextResponse.json(
+              { error: 'Internal server error' },
+              { status: 500 },
+            ),
+          );
+        }
+      });
+    } catch (error) {
+      console.error('Error converting request:', error);
+      reject(
+        NextResponse.json({ error: 'Internal server error' }, { status: 500 }),
+      );
+    }
+  });
+}
 
 export async function GET(req: Request) {
   try {
@@ -112,60 +218,3 @@ export async function GET(req: Request) {
 //     );
 //   }
 // }
-
-export async function POST(req: Request) {
-  const form = formidable({ multiples: true });
-  return new Promise((resolve, reject) => {
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        console.error('Error parsing form:', err);
-        return reject(
-          NextResponse.json({ error: 'Error parsing form' }, { status: 400 }),
-        );
-      }
-
-      try {
-        const profile = JSON.parse(fields.profile as string);
-        const avatar = files.avatar?.[0]; // Archivo del avatar
-        const cover = files.cover?.[0]; // Archivo de la portada
-
-        let avatarUrl = null;
-        let coverUrl = null;
-
-        if (avatar) {
-          // Sube el avatar a IPFS o Firebase
-          avatarUrl =
-            (await uploadToIPFS(avatar.filepath)) ||
-            (await uploadToFirebaseStorage(avatar.filepath, 'avatars'));
-        }
-
-        if (cover) {
-          // Sube la portada a IPFS o Firebase
-          coverUrl =
-            (await uploadToIPFS(cover.filepath)) ||
-            (await uploadToFirebaseStorage(cover.filepath, 'covers'));
-        }
-
-        // Combina las URLs subidas con el perfil
-        const updatedProfile = { ...profile, avatarUrl, coverUrl };
-
-        console.log('Updated Profile:', updatedProfile);
-
-        resolve(
-          NextResponse.json(
-            { success: true, data: updatedProfile },
-            { status: 200 },
-          ),
-        );
-      } catch (error) {
-        console.error('Error processing request:', error);
-        reject(
-          NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 },
-          ),
-        );
-      }
-    });
-  });
-}

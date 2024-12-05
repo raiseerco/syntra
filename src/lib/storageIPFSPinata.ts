@@ -1,14 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-
 import FormData from 'form-data';
-import fs from 'fs';
 
-export const POST = async (req: NextRequest) => {
+type UploadToPinataResult = {
+  success: boolean;
+  cid?: string;
+  error?: string;
+};
+
+export const uploadToPinata = async (
+  fileName: string,
+  fileContent: string,
+): Promise<UploadToPinataResult> => {
   try {
     const form = new FormData();
-    const { fileName, fileContent } = await req.json();
-
-    // Crea un buffer desde el contenido del archivo
     const buffer = Buffer.from(fileContent, 'base64');
     form.append('file', buffer, fileName);
 
@@ -18,7 +21,7 @@ export const POST = async (req: NextRequest) => {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${process.env.PINATA_API_KEY}:${process.env.PINATA_SECRET_API_KEY}`,
-          ...form.getHeaders(), // Añade los headers generados por FormData
+          ...form.getHeaders(),
         },
         body: form as unknown as BodyInit,
       },
@@ -29,12 +32,9 @@ export const POST = async (req: NextRequest) => {
     }
 
     const result = await response.json();
-    return NextResponse.json({ success: true, cid: result.IpfsHash });
+    return { success: true, cid: result.IpfsHash };
   } catch (error: any) {
     console.error('Error uploading to Pinata:', error);
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return { success: false, error: error.message };
   }
 };
