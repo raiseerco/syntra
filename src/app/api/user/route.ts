@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'No auth' }, { status: 401 });
   }
 
-  return new Promise(async (resolve, reject) => {
+  return new Promise<any>(async (resolve, reject) => {
     try {
       const incomingMessage = await convertNextRequestToIncomingMessage(req);
 
