@@ -1,10 +1,12 @@
 'use client';
 
+import { resizeImage, shortAddress } from '../../lib/utils';
 import { useEffect, useState } from 'react';
 
 import AvatarProfile from '../components/ui/AvatarProfile';
+import Loader from '../components/ui/Loader';
 import PlatformLayout from '../layouts/platformLayout';
-import { shortAddress } from '../../lib/utils';
+import { useAuth } from '../components/contexts/AuthContext';
 import { usePrivy } from '@privy-io/react-auth';
 
 export default function Profile() {
@@ -17,8 +19,11 @@ export default function Profile() {
     role?: string | null | undefined;
     displayName?: string | null | undefined;
     timezone?: string | null | undefined;
-    profileImage?: string | null | undefined;
-    coverImage?: string | null | undefined;
+    address?: string | null | undefined;
+    avatarIPFSUrl?: string | null | undefined;
+    avatarFBUrl?: string | null | undefined;
+    coverIPFSUrl?: string | null | undefined;
+    coverFBUrl?: string | null | undefined;
     isAdmin?: boolean | null | undefined;
   };
 
@@ -27,6 +32,8 @@ export default function Profile() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [showLoader, setShowLoader] = useState(false);
+  const { firebaseUser } = useAuth();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -41,8 +48,15 @@ export default function Profile() {
 
         if (!response.ok) throw new Error('Failed to fetch document');
         const data = await response.json();
-        console.log('dataprofile ', data);
-        setProfile(data.data);
+        const updatedProfile = { ...data.data, address: user?.wallet?.address };
+        console.log('dataprofile ', updatedProfile);
+        setProfile(updatedProfile);
+        setCoverPreview(
+          `${process.env.NEXT_PUBLIC_IPFS_IMAGE_RESOLVER1}${updatedProfile.coverIPFSUrl}`,
+        );
+        setAvatarPreview(
+          `${process.env.NEXT_PUBLIC_IPFS_IMAGE_RESOLVER1}${updatedProfile.avatarIPFSUrl}`,
+        );
       } catch (error) {
         console.error(`Error reading:`, error);
       }
@@ -55,50 +69,64 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
+      setShowLoader(true);
       const formData = new FormData();
 
       if (avatarFile) {
-        formData.append('avatar', avatarFile); // archivo seleccionado del input
+        formData.append('avatar', avatarFile);
       }
       if (coverFile) {
-        formData.append('cover', coverFile); // archivo seleccionado del input
+        formData.append('cover', coverFile);
       }
+
       formData.append('profile', JSON.stringify(profile));
 
       const p = `/api/user?address=${user?.wallet?.address}`;
-      const response = await fetch(
-        `/api/user?address=${user?.wallet?.address}`,
-        {
-          method: 'POST',
-          body: formData,
+      const response = await fetch(p, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${firebaseUser.idToken}`,
         },
-      );
+        body: formData,
+      });
 
       if (!response.ok) throw new Error('Failed to fetch document');
       const data = await response.json();
-      console.log('data ', data);
+      console.log('dataFINAL ', data);
+      setShowLoader(false);
     } catch (error) {
       console.error(`Error reading:`, error);
+      setShowLoader(false);
     }
   };
 
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
+
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarPreview(previewUrl);
-      setAvatarFile(file);
-      setProfile(prev => ({ ...prev, profileImage: previewUrl }));
+      const resizedFile = await resizeImage(file, 256, 256);
+      if (resizedFile) {
+        const previewUrl = URL.createObjectURL(resizedFile);
+        setAvatarPreview(previewUrl);
+        setAvatarFile(resizedFile);
+      }
     }
   };
 
-  const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
+
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setCoverPreview(previewUrl);
-      setCoverFile(file);
-      setProfile(prev => ({ ...prev, coverImage: previewUrl }));
+      const resizedFile = await resizeImage(file, 1280, 400);
+      if (resizedFile) {
+        const previewUrl = URL.createObjectURL(resizedFile);
+        setCoverPreview(previewUrl);
+        setCoverFile(resizedFile);
+      }
     }
   };
 
@@ -285,7 +313,13 @@ export default function Profile() {
               dark:bg-stone-700
               bg-stone-200
               dark:text-stone-400 text-stone-900">
-            Save changes
+            {showLoader ? (
+              <div className="flex gap-2 items-center">
+                <Loader fullWidth={false} /> Saving...
+              </div>
+            ) : (
+              <span>Save changes</span>
+            )}
           </button>
         </div>
       </div>

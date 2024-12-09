@@ -47,7 +47,10 @@ const AvatarProfile: React.FC<AvatarProfileProps> = ({ address }) => {
         // eslint-disable-next-line @next/next/no-img-element
         <img
           className="rounded-full border-2 border-stone-400 w-16 h-16 object-cover"
-          src={user?.profileImage}
+          src={
+            `${process.env.NEXT_PUBLIC_IPFS_IMAGE_RESOLVER1}/${user?.avatarIPFSUrl}` ||
+            user?.profileImage
+          }
           alt="profile"
         />
       ) : (

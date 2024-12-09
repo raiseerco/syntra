@@ -1,9 +1,11 @@
+import { getUser, updateDocument } from '../../../lib/firestore';
+
 import { IncomingMessage } from 'http';
 import { NextResponse } from 'next/server';
 import { Readable } from 'stream';
+import { adminAuth } from '../../../lib/firebaseAdmin';
 import formidable from 'formidable';
 import { promises as fs } from 'fs';
-import { getUser } from '../../../lib/firestore';
 import path from 'path';
 import { uploadToFirebaseStorage } from '../../../lib/storageFirebase';
 import { uploadToPinata } from '../../../lib/storageIPFSPinata';
@@ -49,6 +51,25 @@ async function convertNextRequestToIncomingMessage(
 export async function POST(req: Request) {
   const form = formidable({ multiples: true });
 
+  const authHeader = req.headers.get('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return NextResponse.json(
+      { message: 'Missing or invalid Authorization header' },
+      { status: 401 },
+    );
+  }
+  const idToken = authHeader.split('Bearer ')[1];
+  console.log('2 idToken', idToken);
+
+  // Verifiy ID token
+  const aa = (await adminAuth()).auth();
+  const decodedToken = await aa.verifyIdToken(idToken);
+  console.log('3 decodedToken', decodedToken);
+  if (!decodedToken) {
+    return NextResponse.json({ message: 'No auth' }, { status: 401 });
+  }
+
   return new Promise(async (resolve, reject) => {
     try {
       const incomingMessage = await convertNextRequestToIncomingMessage(req);
@@ -61,6 +82,8 @@ export async function POST(req: Request) {
           );
         }
 
+        let updatedProfile = {};
+
         try {
           const profile = JSON.parse(
             Array.isArray(fields.profile)
@@ -70,8 +93,10 @@ export async function POST(req: Request) {
           const avatar = files.avatar?.[0];
           const cover = files.cover?.[0];
 
-          let avatarUrl = null;
-          let coverUrl = null;
+          let avatarIPFSUrl = null;
+          let avatarFBUrl = null;
+          let coverIPFSUrl = null;
+          let coverFBUrl = null;
 
           const readFileAsBase64 = async (filepath: string) => {
             const fileBuffer = await fs.readFile(filepath);
@@ -81,20 +106,49 @@ export async function POST(req: Request) {
           if (avatar) {
             const avatarContent = await readFileAsBase64(avatar.filepath);
             const avatarFileName = path.basename(avatar.filepath);
-            avatarUrl =
-              (await uploadToPinata(avatarFileName, avatarContent)).cid ||
-              (await uploadToFirebaseStorage(avatar.filepath, 'avatars'));
+            avatarIPFSUrl = (
+              await uploadToPinata(avatarFileName, avatarContent)
+            ).cid;
+            // avatarFBUrl = await uploadToFirebaseStorage(
+            //   avatar.filepath,
+            //   'avatars',
+            // );
+            updatedProfile = {
+              ...profile,
+              avatarIPFSUrl,
+              avatarFBUrl,
+            };
           }
 
           if (cover) {
             const coverContent = await readFileAsBase64(cover.filepath);
             const coverFileName = path.basename(cover.filepath);
-            coverUrl =
-              (await uploadToPinata(coverFileName, coverContent)).cid ||
-              (await uploadToFirebaseStorage(cover.filepath, 'covers'));
+            coverIPFSUrl = (await uploadToPinata(coverFileName, coverContent))
+              .cid;
+
+            // FIXME
+            // coverFBUrl = await uploadToFirebaseStorage(
+            //   cover.filepath,
+            //   'covers',
+            // );
+
+            updatedProfile = {
+              ...profile,
+              coverIPFSUrl,
+              coverFBUrl,
+            };
           }
 
-          const updatedProfile = { ...profile, avatarUrl, coverUrl };
+          updatedProfile = {
+            ...profile,
+          };
+
+          const res = await updateDocument(
+            'users',
+            profile.address,
+            updatedProfile,
+            idToken,
+          );
 
           resolve(
             NextResponse.json(

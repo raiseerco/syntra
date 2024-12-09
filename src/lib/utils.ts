@@ -397,3 +397,63 @@ export function setBlockie(canvasRef: any, text: string) {
     context.drawImage(blockie, 0, 0, 26, 26);
   }
 }
+
+export const resizeImage = async (
+  file: File,
+  maxWidth: number,
+  maxHeight: number,
+): Promise<File | null> => {
+  return new Promise<File | null>((resolve, reject) => {
+    const img = new Image();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return resolve(null);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      img.src = reader.result as string;
+    };
+
+    img.onload = () => {
+      const aspectRatio = img.width / img.height;
+
+      if (img.width > maxWidth || img.height > maxHeight) {
+        // Determine the new dimensions while preserving aspect ratio
+        if (aspectRatio > 1) {
+          // Landscape
+
+          canvas.width = maxWidth;
+          canvas.height = maxWidth / aspectRatio;
+        } else {
+          // Portrait
+          canvas.width = maxHeight * aspectRatio;
+          canvas.height = maxHeight;
+        }
+      } else {
+        // Use original dimensions if within limits
+        canvas.width = img.width;
+        canvas.height = img.height;
+      }
+
+      // Draw the image to the canvas and convert to blob
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        blob => {
+          if (blob) {
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+            });
+            resolve(resizedFile);
+          } else {
+            resolve(null);
+          }
+        },
+        file.type,
+        1, // Quality: 1   max quality
+      );
+    };
+
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+};

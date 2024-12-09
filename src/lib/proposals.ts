@@ -2,7 +2,6 @@ export const fetchAllProposals = async (daoName: string) => {
   try {
     const response = await fetch(`/api/proposals?daoName=${daoName}`);
     if (!response.ok) {
-      console.log('responseeee', response);
       throw Error(`HTTP status error: ${response.statusText}`);
     }
 
