@@ -7,14 +7,8 @@ import { adminAuth } from '../../../lib/firebaseAdmin';
 import formidable from 'formidable';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { uploadToFirebaseStorage } from '../../../lib/storageFirebase';
+import { uploadToFirebaseStorage } from '../../../lib/storageFirebase'; // TBD
 import { uploadToPinata } from '../../../lib/storageIPFSPinata';
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
   const reader = stream.getReader();
