@@ -63,7 +63,19 @@ export const LoginButton: React.FC = () => {
         className="rounded-xl pl-2 text-xs font-mono pr-4 z-20 dark:text-stone-300"
         variant="ghost"
         onClick={() => setShowMenu(!showMenu)}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {/* TODO promote to userContext */}
+        {/* <img
+          className="rounded-full border-2 border-red-400 w-7 h-7 object-cover"
+          src={
+            `${process.env.NEXT_PUBLIC_IPFS_IMAGE_RESOLVER1}${user?.avatarIPFSUrl}` ||
+            user?.profileImage
+          }
+          alt="profile"
+        /> */}
+
         <Chip text={shortAddress(user?.wallet?.address)} />
+
         <ChevronDown />
       </Button>
       <div className="justify-self-end absolute text-sm">
