@@ -1,3 +1,5 @@
+'use server';
+
 import { getApp, getApps, initializeApp } from 'firebase/app';
 
 import { getDatabase } from 'firebase/database';
@@ -14,7 +16,7 @@ export const firebaseConfig = {
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET_CLIENT as string,
   messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.FIREBASE_APP_ID,
-  databaseURL: process.env.FIREBASE_DB_URL,
+  databaseURL: process.env.FIREBASE_DB_URL as string,
   clientEmail: process.env.FIREBASE_EMAIL as string,
   privateKey: process.env.FIREBASE_ADMIN_PK as string,
 };
