@@ -15,21 +15,21 @@ export const firebaseConfig = {
   projectId: process.env.FIREBASE_PROJECT_ID as string,
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET_CLIENT as string,
   messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
+  appId: process.env.FIREBASE_APP_ID as string,
   databaseURL: process.env.FIREBASE_DB_URL as string,
   clientEmail: process.env.FIREBASE_EMAIL as string,
   privateKey: process.env.FIREBASE_ADMIN_PK as string,
 };
 
-const params = {};
-
 let app;
+
+console.log(firebaseConfig); // Para verificar si la API Key está correctamente cargada
+
 if (getApps().length === 0) {
   app = initializeApp(firebaseConfig);
 } else {
   app = getApp();
 }
-
 // const firebaseAuth = getAuth(firebaseApp);
 const db = getFirestore(app);
 const database = getDatabase(app);
