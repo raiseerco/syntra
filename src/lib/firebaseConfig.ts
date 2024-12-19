@@ -5,9 +5,9 @@ import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 
-const serviceAccount = JSON.parse(
-  process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}',
-);
+// const serviceAccount = JSON.parse(
+//   process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '{}',
+// );
 
 export const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY as string,
@@ -23,7 +23,7 @@ export const firebaseConfig = {
 
 let app;
 
-console.log(firebaseConfig); // Para verificar si la API Key está correctamente cargada
+console.log(firebaseConfig);
 
 if (getApps().length === 0) {
   app = initializeApp(firebaseConfig);
