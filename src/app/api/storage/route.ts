@@ -1,3 +1,5 @@
+'use server';
+
 import { get, getDatabase, push, ref, remove, set } from 'firebase/database';
 
 import { NextResponse } from 'next/server';
