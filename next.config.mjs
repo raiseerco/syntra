@@ -15,7 +15,7 @@ const nextConfig = {
   },
   // Enable dynamic import of 'ws' package
   experimental: {
-    esmExternals: "loose",
+    esmExternals: 'loose',
   },
 };
 
