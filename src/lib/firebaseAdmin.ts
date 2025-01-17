@@ -22,7 +22,8 @@ export async function adminAuth() {
   const auth = admin.initializeApp({
     credential: cert,
     projectId: params.projectId,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET_ADMIN as string,
+    storageBucket: params.storageBucket,
+    databaseURL: params.databaseURL,
   });
 
   return auth;
