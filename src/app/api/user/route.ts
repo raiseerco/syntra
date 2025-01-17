@@ -7,7 +7,7 @@ import { adminAuth } from '../../../lib/firebaseAdmin';
 import formidable from 'formidable';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { uploadToFirebaseStorage } from '../../../lib/storageFirebase'; // TBD
+// import { uploadToFirebaseStorage } from '../../../lib/storageFirebase'; // TBD
 import { uploadToPinata } from '../../../lib/storageIPFSPinata';
 
 async function streamToBuffer(stream: ReadableStream): Promise<Buffer> {
@@ -98,11 +98,13 @@ export async function POST(req: Request) {
           };
 
           if (avatar) {
+            console.log('avatar', avatar);
             const avatarContent = await readFileAsBase64(avatar.filepath);
             const avatarFileName = path.basename(avatar.filepath);
             avatarIPFSUrl = (
               await uploadToPinata(avatarFileName, avatarContent)
             ).cid;
+            console.log('avatarIPFSUrl', avatarIPFSUrl);
             // avatarFBUrl = await uploadToFirebaseStorage(
             //   avatar.filepath,
             //   'avatars',
@@ -115,6 +117,7 @@ export async function POST(req: Request) {
           }
 
           if (cover) {
+            console.log('cover', cover);
             const coverContent = await readFileAsBase64(cover.filepath);
             const coverFileName = path.basename(cover.filepath);
             coverIPFSUrl = (await uploadToPinata(coverFileName, coverContent))
@@ -125,7 +128,7 @@ export async function POST(req: Request) {
             //   cover.filepath,
             //   'covers',
             // );
-
+            console.log('coverIPFSUrl', coverIPFSUrl);
             updatedProfile = {
               ...profile,
               coverIPFSUrl,

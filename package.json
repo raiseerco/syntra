@@ -30,6 +30,7 @@
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.7",
     "ethereum-blockies": "^0.1.1",
     "firebase": "^10.14.1",
     "firebase-admin": "^12.5.0",
@@ -58,8 +59,6 @@
     "web3.storage": "^4.5.5",
     "ws": "^8.18.0",
     "y-indexeddb": "^9.0.12",
-    "y-webrtc": "^10.3.0",
-    "y-websocket": "^2.0.4",
     "yjs": "^13.6.18"
   },
   "devDependencies": {

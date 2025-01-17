@@ -382,7 +382,7 @@ export function escapeMDSymbols(text: string): string {
   });
 }
 
-export function setBlockie(canvasRef: any, text: string) {
+export async function setBlockie(canvasRef: any, text: string) {
   const cleanedText = text.trim().toLowerCase();
   const blockie = blockies.create({
     seed: cleanedText,

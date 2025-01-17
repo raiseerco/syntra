@@ -1,3 +1,4 @@
+// authContext.tsx
 'use client';
 
 import React, {
@@ -8,31 +9,23 @@ import React, {
   useState,
 } from 'react';
 import { User, usePrivy } from '@privy-io/react-auth';
-import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth, signInWithCustomToken, signOut } from 'firebase/auth';
+import { signInWithCustomToken, signOut } from 'firebase/auth';
 
-import { firebaseConfig } from '../../../lib/firebaseConfig';
+import { firebaseAuth } from '../../../lib/firebaseClient';
 import { useRouter } from 'next/navigation';
 
-let firebaseApp;
-
-if (getApps().length === 0) {
-  firebaseApp = initializeApp(firebaseConfig);
-} else {
-  firebaseApp = getApp();
-}
-
-const firebaseAuth = getAuth(firebaseApp);
-
-interface AuthContextType {
+interface AuthState {
   authenticated: boolean;
   user: User | null;
   ready: boolean;
+  firebaseUser: any | null;
+  isAdmin: boolean;
+}
+
+type AuthContextType = AuthState & {
   login: () => void;
   logout: () => void;
-  firebaseUser: any | null;
-  isAdmin: any | null;
-}
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -40,16 +33,48 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Function to authenticate with Firebase
+const authenticateWithFirebase = async (walletAddress: string) => {
+  try {
+    if (!walletAddress) {
+      throw new Error('Invalid wallet address');
+    }
+
+    const response = await fetch('/api/custom', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ walletAddress }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error fetching custom token');
+    }
+
+    const { customToken, user } = await response.json();
+
+    // Sign in with the custom token in Firebase
+    const userCredential = await signInWithCustomToken(
+      firebaseAuth,
+      customToken,
+    );
+    const idToken = await firebaseAuth.currentUser?.getIdToken();
+
+    // Return all the required data
+    return {
+      walletAddress,
+      customToken,
+      idToken,
+      isAdmin: user?.data?.isAdmin || false,
+    };
+  } catch (error) {
+    console.error('Error in authenticateWithFirebase:', error);
+    throw error;
+  }
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { ready, authenticated, login, logout, user } = usePrivy();
-  const [firebaseUser, setFirebaseUser] = useState<any | null>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const router = useRouter();
-  const auth = getAuth();
-
-  const [authState, setAuthState] = useState<
-    Omit<AuthContextType, 'login' | 'logout'>
-  >({
+  const [authState, setAuthState] = useState<AuthState>({
     authenticated: false,
     user: null,
     ready: false,
@@ -57,76 +82,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAdmin: false,
   });
 
-  // get custom tokens
+  const router = useRouter();
+
   useEffect(() => {
-    const authenticateWithFirebase = async (walletAddress: string) => {
-      try {
-        if (walletAddress === '' || typeof walletAddress === 'undefined')
-          return;
-
-        const response = await fetch('/api/custom', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ walletAddress }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Error getting custom token');
-        }
-
-        const { customToken, user } = await response.json();
-
-        setIsAdmin(user?.data?.isAdmin || false);
-        const userCredential = await signInWithCustomToken(
-          firebaseAuth,
-          customToken,
+    if (ready && authenticated && user?.wallet?.address) {
+      authenticateWithFirebase(user.wallet.address)
+        .then(({ walletAddress, customToken, idToken, isAdmin }) => {
+          setAuthState(prevState => ({
+            ...prevState,
+            firebaseUser: { walletAddress, customToken, idToken },
+            isAdmin,
+            authenticated,
+            user,
+            ready,
+          }));
+        })
+        .catch(error =>
+          console.error('Error authenticating custom token:', error),
         );
-
-        const idToken = await auth.currentUser?.getIdToken();
-
-        setFirebaseUser({ walletAddress, customToken, idToken });
-      } catch (error) {
-        console.error('Error authenticating custom token:', error);
-      }
-    };
-
-    if (ready && authenticated && user) {
-      const walletAddress = user.wallet?.address;
-
-      if (walletAddress) {
-        authenticateWithFirebase(walletAddress);
-      }
-
+    } else {
       setAuthState(prevState => ({
         ...prevState,
         authenticated,
         user,
         ready,
-        isAdmin,
       }));
     }
-  }, [ready, authenticated, user, isAdmin]);
+  }, [ready, authenticated, user]);
 
-  const handleLogout = () => {
-    console.log('saliendo...');
-    return logout()
-      .then(() => {
-        console.log('salido. ');
-
-        signOut(firebaseAuth);
-      })
-      .then(() => {
-        setFirebaseUser(null);
-        router.push('/');
-      })
-      .catch(e => console.log('eeee ', e));
+  const handleLogout = async () => {
+    try {
+      await logout();
+      await signOut(firebaseAuth);
+      setAuthState({
+        authenticated: false,
+        user: null,
+        ready: false,
+        firebaseUser: null,
+        isAdmin: false,
+      });
+      router.push('/');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ ...authState, login, logout: handleLogout, firebaseUser }}>
+    <AuthContext.Provider value={{ ...authState, login, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -134,8 +136,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be within AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
