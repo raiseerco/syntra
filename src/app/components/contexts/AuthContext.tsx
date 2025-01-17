@@ -1,4 +1,3 @@
-// authContext.tsx
 'use client';
 
 import React, {
@@ -52,7 +51,7 @@ const authenticateWithFirebase = async (walletAddress: string) => {
 
     const { customToken, user } = await response.json();
 
-    // Sign in with the custom token in Firebase
+    // FIXME Sign in with the custom token in Firebase
     const userCredential = await signInWithCustomToken(
       firebaseAuth,
       customToken,
