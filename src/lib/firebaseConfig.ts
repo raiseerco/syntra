@@ -8,7 +8,7 @@ const firebaseConfig = {
   authDomain: process.env.FIREBASE_AUTH_DOMAIN as string,
   databaseURL: process.env.FIREBASE_DB_URL as string,
   projectId: process.env.FIREBASE_PROJECT_ID as string,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET_CLIEN as string,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET_CLIENT as string,
   messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID as string,
   appId: process.env.FIREBASE_APP_ID as string,
 
