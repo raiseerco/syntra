@@ -16,6 +16,7 @@ export async function getCalendar(calendar_id: string) {
     calendar_id,
   )}/events?${params}`;
 
+  console.log(url);
   try {
     const response = await fetch(url);
 
